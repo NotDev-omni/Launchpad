@@ -1,0 +1,302 @@
+<title>Trove Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F7F4FF;--surface:#FFFFFF;--surface-2:#F2EDFF;--surface-3:#E9E2FB;--border:#E5DEF7;
+  --text:#241B38;--text-dim:#6E6484;--text-faint:#9B93AD;--shadow:rgba(84,58,160,.13);
+  --r1:#A7AEC2;--r2:#35C99B;--r3:#4EA5F5;--r4:#9B6BFF;--r5:#FF74A8;--r6:#FF6B5A;--r7:#FFC145;
+  --up:#22A67F;--down:#EE5A48;
+  --acc:#7C5CFF;--acc-deep:#5B3FD1;--acc-wash:rgba(124,92,255,.11);--acc-2:#FF9F45;
+  --display:'Fredoka',system-ui,sans-serif;--body:'Plus Jakarta Sans',system-ui,sans-serif;
+  --rs:13px;--rm:20px;--rl:30px;--rp:999px;--spring:cubic-bezier(.34,1.56,.64,1);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161226;--surface:#1F1A33;--surface-2:#2A2342;--surface-3:#352C52;--border:#332A4F;
+  --text:#F0EBFF;--text-dim:#A79EC4;--text-faint:#7B7397;--shadow:rgba(0,0,0,.4);
+  --r1:#8A92A8;--r4:#AC85FF;--up:#3FD9A6;--down:#FF7D6C;
+  --acc:#9B7DFF;--acc-deep:#6D4FE3;--acc-wash:rgba(155,125,255,.15);}}
+:root[data-theme="dark"]{
+  --bg:#161226;--surface:#1F1A33;--surface-2:#2A2342;--surface-3:#352C52;--border:#332A4F;
+  --text:#F0EBFF;--text-dim:#A79EC4;--text-faint:#7B7397;--shadow:rgba(0,0,0,.4);
+  --r1:#8A92A8;--r4:#AC85FF;--up:#3FD9A6;--down:#FF7D6C;
+  --acc:#9B7DFF;--acc-deep:#6D4FE3;--acc-wash:rgba(155,125,255,.15);}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-family:var(--display);margin:0;font-weight:600;text-wrap:balance;line-height:1.12;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,4.6vw,3.1rem);font-weight:700}
+h2{font-size:clamp(1.3rem,2.4vw,1.8rem)}
+h3{font-size:1.02rem}
+p{margin:0}
+code{font-family:ui-monospace,monospace;font-size:.86em;background:var(--surface-2);padding:1px 5px;border-radius:5px}
+button{font-family:var(--display);font-weight:600;cursor:pointer;border:0;background:none;color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 22px}
+.dim{color:var(--text-dim)}.up{color:var(--up)}.down{color:var(--down)}
+.btn{background:var(--acc);color:#fff;font-size:.92rem;padding:11px 22px;border-radius:var(--rp);
+  box-shadow:0 4px 0 var(--acc-deep);transition:transform .12s ease,box-shadow .12s ease,filter .16s ease}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--acc-deep)}
+.btn.sm{padding:8px 16px;font-size:.83rem;box-shadow:0 3px 0 var(--acc-deep)}
+.btn.sm:active{transform:translateY(3px)}
+.btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--border);box-shadow:0 3px 0 var(--border)}
+.btn.ghost:active{transform:translateY(3px);box-shadow:0 0 0 var(--border)}
+.nav{position:sticky;top:0;z-index:60;background:var(--bg);border-bottom:1px solid var(--border)}
+.nav-in{display:flex;align-items:center;gap:14px;height:68px}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:1.24rem;white-space:nowrap}
+.logo svg{width:31px;height:31px;flex-shrink:0}
+.links{display:flex;gap:2px}
+.links a{font-family:var(--display);font-weight:500;font-size:.9rem;color:var(--text-dim);text-decoration:none;padding:8px 13px;border-radius:var(--rp);transition:all .16s}
+.links a:hover{background:var(--surface-2);color:var(--text)}
+.links a.on{background:var(--acc-wash);color:var(--acc);font-weight:600}
+@media(max-width:1040px){.links{display:none}}
+.search{flex:1;min-width:0;display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);padding:9px 17px;border-radius:var(--rp)}
+.search:focus-within{border-color:var(--acc);box-shadow:0 0 0 4px var(--acc-wash)}
+.search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font-family:var(--body);font-size:.9rem;outline:none}
+.search input::placeholder{color:var(--text-faint)}
+.icon-btn{width:41px;height:41px;border-radius:var(--rp);background:var(--surface-2);display:grid;place-items:center;font-size:1rem;flex-shrink:0;transition:all .2s var(--spring)}
+.icon-btn:hover{background:var(--surface-3);transform:rotate(-12deg) scale(1.08)}
+.livebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--rp);padding:9px 18px;margin:20px 0 4px;font-size:.85rem;color:var(--text-dim)}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--up);animation:pl 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.35}}
+.livebar b{color:var(--text);font-weight:600}
+.hero{padding:30px 0 18px;display:flex;flex-direction:column;gap:14px}
+.hero p.sub{font-size:1.05rem;color:var(--text-dim);max-width:62ch}
+.sec{padding:26px 0}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.rail{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 16px;scroll-snap-type:x mandatory}
+.rail::-webkit-scrollbar{height:7px}
+.rail::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:99px}
+.rc{flex:0 0 218px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--border);border-radius:var(--rm);
+  overflow:hidden;cursor:pointer;transition:transform .25s var(--spring),box-shadow .25s,border-color .2s;text-align:left}
+.rc:hover,.rc.on{transform:translateY(-6px);box-shadow:0 16px 32px var(--shadow);border-color:var(--acc)}
+.rc .art{aspect-ratio:1.5;overflow:hidden;background:var(--surface-2)}
+.rc .art img{width:100%;height:100%;object-fit:cover;display:block}
+.rc .info{padding:12px 14px;display:flex;flex-direction:column;gap:5px}
+.rc .nm{font-family:var(--display);font-weight:600;font-size:.94rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc .row{display:flex;justify-content:space-between;font-size:.79rem;color:var(--text-dim)}
+.rc .row b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{font-family:var(--display);font-weight:500;font-size:.84rem;padding:8px 15px;border-radius:var(--rp);
+  background:var(--surface);border:1px solid var(--border);color:var(--text-dim);cursor:pointer;
+  transition:all .2s var(--spring);display:inline-flex;align-items:center;gap:7px}
+.chip:hover{transform:translateY(-2px);border-color:var(--acc);color:var(--acc)}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.chip .ct{font-size:.74rem;opacity:.62}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:16px}
+.it{background:var(--surface);border:1px solid var(--border);border-radius:var(--rm);overflow:hidden;cursor:pointer;
+  position:relative;transition:transform .25s var(--spring),box-shadow .25s,border-color .2s;text-align:left;padding:0;width:100%}
+.it:hover{transform:translateY(-7px);box-shadow:0 18px 34px var(--shadow);border-color:var(--tc)}
+.it .art{aspect-ratio:1;overflow:hidden;background:var(--surface-2);position:relative}
+.it .art img{width:100%;height:100%;object-fit:cover;display:block}
+.it .tier{position:absolute;top:10px;right:10px;background:var(--tc);color:#fff;font-family:var(--display);
+  font-weight:600;font-size:.65rem;padding:3px 10px;border-radius:var(--rp);box-shadow:0 3px 9px rgba(0,0,0,.2)}
+.it .info{padding:11px 13px 13px;display:flex;flex-direction:column;gap:5px}
+.it .nm{font-family:var(--display);font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .sub{font-size:.72rem;color:var(--text-faint)}
+.it .p{font-family:var(--display);font-weight:600;font-size:.95rem;font-variant-numeric:tabular-nums}
+.it .buy{position:absolute;left:12px;right:12px;bottom:12px;background:var(--acc);color:#fff;font-family:var(--display);
+  font-weight:600;font-size:.83rem;padding:9px;border-radius:var(--rp);text-align:center;
+  transform:translateY(calc(100% + 14px));transition:transform .28s var(--spring);box-shadow:0 4px 0 var(--acc-deep)}
+.it:hover .buy{transform:translateY(0)}
+.sheet{position:fixed;inset:0;z-index:90;background:rgba(20,12,40,.55);backdrop-filter:blur(5px);
+  display:none;align-items:center;justify-content:center;padding:22px}
+.sheet.on{display:flex}
+.sheet-in{background:var(--surface);border-radius:var(--rl);max-width:540px;width:100%;max-height:86vh;overflow:auto;
+  padding:26px;box-shadow:0 26px 70px rgba(0,0,0,.35);animation:sIn .32s var(--spring)}
+@keyframes sIn{from{transform:translateY(22px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.sheet-top{display:flex;gap:16px;align-items:center;margin-bottom:6px}
+.sheet-top img{width:74px;height:74px;border-radius:var(--rs);object-fit:cover;flex-shrink:0}
+.kv{display:grid;grid-template-columns:118px 1fr;gap:7px 14px;margin:16px 0;font-size:.84rem}
+.kv dt{color:var(--text-faint);font-family:var(--display);font-weight:500}
+.kv dd{margin:0;font-family:ui-monospace,monospace;font-size:.74rem;word-break:break-all}
+.warn{background:var(--acc-wash);border-radius:var(--rs);padding:14px 16px;font-size:.85rem;line-height:1.6}
+.warn b{font-weight:600}
+.notes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.notes{grid-template-columns:1fr}}
+.note{background:var(--surface);border:1px solid var(--border);border-radius:var(--rm);padding:20px;display:flex;flex-direction:column;gap:8px}
+.note .em{font-size:1.6rem;line-height:1}
+.note p{font-size:.87rem;color:var(--text-dim)}
+.note b{color:var(--text);font-weight:600}
+.yes{color:var(--up);font-weight:600}.no{color:var(--down);font-weight:600}
+footer{border-top:1px solid var(--border);margin-top:24px;padding:28px 0 56px;color:var(--text-faint);font-size:.85rem}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important;animation-duration:.01ms !important}}
+</style>
+
+<div class="nav"><div class="wrap nav-in">
+  <div class="logo">
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="4" y="12" width="32" height="24" rx="8" style="fill:var(--acc)"></rect>
+      <rect x="4" y="12" width="32" height="8" rx="4" style="fill:var(--acc-2)"></rect>
+      <circle cx="15" cy="27" r="2.6" fill="#fff"></circle><circle cx="25" cy="27" r="2.6" fill="#fff"></circle>
+      <path d="M17 32 q3 2.4 6 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"></path>
+    </svg>Trove</div>
+  <nav class="links"><a href="#" class="on">Explore</a><a href="#">Crates</a><a href="#">Tokens</a><a href="#">Drops</a><a href="#">Create</a></nav>
+  <div class="search"><span style="color:var(--text-faint)">&#128269;</span><input placeholder="Search collections, mints, wallets&hellip;" aria-label="Search"></div>
+  <button class="icon-btn" id="theme" aria-label="Toggle colour theme">&#127769;</button>
+  <button class="btn sm">Connect</button>
+</div></div>
+
+<div class="wrap">
+  <div class="livebar">
+    <span class="pulse"></span>
+    <span>Live Solana listings, pulled from the Magic Eden public API &middot; snapshot <b id="stamp"></b></span>
+    <span style="margin-left:auto"><b id="ncol"></b> collections &middot; <b id="nit"></b> real asks</span>
+  </div>
+
+  <div class="hero">
+    <h1>Real listings.<br>Real prices. Real floor.</h1>
+    <p class="sub">Every item below is a genuine live ask on Solana &mdash; actual price, seller wallet, mint address, auction-house account and moonrank, with artwork pulled from its real metadata and embedded straight into this page. Click any one to see exactly what a fill would need.</p>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd"><h2>Collections &#128293;</h2><span class="dim" style="font-size:.85rem">Sorted by 7-day volume</span></div>
+    <div class="rail" id="rail"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd"><h2 id="gridTitle">All listings</h2><button class="btn ghost sm" id="clearF">Show everything</button></div>
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd"><h2>So &mdash; can we sell these directly? &#129300;</h2></div>
+    <div class="notes">
+      <div class="note"><span class="em">&#9989;</span><h3>Listings are public &mdash; <span class="yes">you were right</span></h3>
+        <p>Confirmed. Every price, seller, mint and auction-house account here came from a <b>keyless public API call</b>. Reading the orderbook costs nothing and needs nobody's permission.</p></div>
+      <div class="note"><span class="em">&#9888;&#65039;</span><h3>Filling them &mdash; <span class="no">gated</span></h3>
+        <p>Reading is open; <b>executing is not</b>. Magic Eden's <code>buy_now</code> instruction builder returned <b>HTTP 401</b> when I tested it. Filling someone else's ask means routing through their program, on their commercial terms, paying their fee.</p></div>
+      <div class="note"><span class="em">&#127974;</span><h3>Your own orderbook</h3>
+        <p>The alternative: deploy <b>your own marketplace program</b>. Sellers list into your escrow, you set the fee, nobody can gate you. The tradeoff is a cold start &mdash; day one you have zero listings.</p></div>
+      <div class="note"><span class="em">&#128274;</span><h3>This page cannot transact</h3>
+        <p>Published artifacts run under a strict CSP &mdash; <b>no wallet injection, no outbound network</b>. So this is a true snapshot, not a live terminal. Nothing here can sign, and no price will update.</p></div>
+      <div class="note"><span class="em">&#128260;</span><h3>What the real thing needs</h3>
+        <p>Next.js + <b>@solana/wallet-adapter</b>, a Helius RPC key, ME or Tensor for aggregated asks, and your own program for your own drops. Then the buy button genuinely signs.</p></div>
+      <div class="note"><span class="em">&#128176;</span><h3>Where your fee lives</h3>
+        <p>On an aggregated fill you add a <b>taker fee on top</b> of the marketplace's. On your own orderbook you keep the whole spread. Most launchpads do both: own program for their drops, aggregate everything else.</p></div>
+      <div class="note"><span class="em">&#129513;</span><h3>Not every ask is the same shape</h3>
+        <p>Six of the 48 listings here have <b>no auction-house account</b> — they're AMM pool listings that fill against a liquidity pool through a different instruction, not against a named seller. Open a CETS item to see one. A naive aggregator that assumes one fill path <b>silently breaks</b> on these.</p></div>
+    </div>
+  </div>
+  <footer><p>Trove &middot; direction 04 &middot; live data snapshot &middot; artwork embedded from on-chain metadata &middot; prices in SOL</p></footer>
+</div>
+
+<div class="sheet" id="sheet"><div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="sName">
+  <div class="sheet-top"><img id="sImg" alt=""><div><h3 id="sName"></h3><p class="dim" id="sColl" style="font-size:.85rem"></p></div></div>
+  <dl class="kv" id="sKv"></dl>
+  <div class="warn" id="sWarn"></div>
+  <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+    <button class="btn" id="sClose">Got it</button>
+    <a class="btn ghost" id="sME" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block">Verify on Magic Eden &#8599;</a>
+  </div>
+</div></div>
+
+<script>
+var DATA=__BLOB__;
+(function(){
+  var TB=[[100,'Godly','--r7'],[400,'Mythic','--r6'],[1000,'Legendary','--r5'],
+          [2000,'Epic','--r4'],[4000,'Rare','--r3'],[7000,'Uncommon','--r2']];
+  function band(rank){
+    if(rank===null||rank===undefined) return {k:'Unranked',v:'--r1'};
+    for(var i=0;i<TB.length;i++) if(rank<=TB[i][0]) return {k:TB[i][1],v:TB[i][2]};
+    return {k:'Common',v:'--r1'};
+  }
+  var ALL=[];
+  DATA.collections.forEach(function(c){c.items.forEach(function(it){ALL.push({c:c,it:it});});});
+  document.getElementById('stamp').textContent=DATA.fetched;
+  document.getElementById('ncol').textContent=DATA.collections.length;
+  document.getElementById('nit').textContent=ALL.length;
+
+  var railEl=document.getElementById('rail'),chipsEl=document.getElementById('chips'),
+      gridEl=document.getElementById('grid'),titleEl=document.getElementById('gridTitle'),sel=null;
+
+  DATA.collections.forEach(function(c){
+    var b=document.createElement('button');b.className='rc';b.dataset.sym=c.sym;
+    b.innerHTML='<span class="art"><img loading="lazy" alt="" src="'+c.items[0].img+'"></span>'+
+      '<span class="info"><span class="nm">'+c.name+'</span>'+
+      '<span class="row"><span>Floor</span><b>'+c.floor.toFixed(2)+' &#9678;</b></span>'+
+      '<span class="row"><span>Listed</span><b>'+c.listed.toLocaleString()+'</b></span>'+
+      '<span class="row"><span>7d volume</span><b>'+Math.round(c.vol7d).toLocaleString()+' &#9678;</b></span></span>';
+    b.addEventListener('click',function(){pick(sel===c.sym?null:c.sym);});
+    railEl.appendChild(b);
+  });
+
+  DATA.collections.forEach(function(c){
+    var b=document.createElement('button');b.className='chip';b.dataset.sym=c.sym;
+    b.innerHTML=c.name+' <span class="ct">'+c.items.length+'</span>';
+    b.addEventListener('click',function(){pick(sel===c.sym?null:c.sym);});
+    chipsEl.appendChild(b);
+  });
+
+  function pick(sym){
+    sel=sym;
+    var m=DATA.collections.filter(function(c){return c.sym===sym;});
+    titleEl.textContent=m.length?m[0].name:'All listings';
+    Array.prototype.forEach.call(chipsEl.children,function(b){b.classList.toggle('on',b.dataset.sym===sym);});
+    Array.prototype.forEach.call(railEl.children,function(b){b.classList.toggle('on',b.dataset.sym===sym);});
+    render();
+  }
+
+  function render(){
+    var list=ALL.filter(function(x){return !sel||x.c.sym===sel;})
+                .sort(function(a,b){return a.it.p-b.it.p;});
+    gridEl.innerHTML='';
+    list.forEach(function(x){
+      var bd=band(x.it.rank),b=document.createElement('button');
+      b.className='it';b.style.setProperty('--tc','var('+bd.v+')');
+      b.innerHTML='<span class="art"><img loading="lazy" alt="" src="'+x.it.img+'">'+
+        '<span class="tier">'+bd.k+'</span></span>'+
+        '<span class="info"><span class="nm">'+x.it.n+'</span>'+
+        '<span class="sub">'+x.c.name+(x.it.rank?' &middot; rank '+x.it.rank:'')+'</span>'+
+        '<span class="p">'+x.it.p.toFixed(3)+' &#9678;</span></span>'+
+        '<span class="buy">Buy now</span>';
+      b.addEventListener('click',function(){openSheet(x);});
+      gridEl.appendChild(b);
+    });
+  }
+
+  var sheet=document.getElementById('sheet');
+  function openSheet(x){
+    document.getElementById('sImg').src=x.it.img;
+    document.getElementById('sName').textContent=x.it.n;
+    document.getElementById('sColl').textContent=x.c.name+' · asking '+x.it.p.toFixed(3)+' SOL · floor '+x.c.floor.toFixed(2)+' SOL';
+    var pool=!x.it.ah;
+    document.getElementById('sKv').innerHTML=
+      '<dt>Ask</dt><dd>'+x.it.p.toFixed(3)+' SOL</dd>'+
+      '<dt>Mint</dt><dd>'+x.it.mint+'</dd>'+
+      '<dt>Seller</dt><dd>'+x.it.seller+'</dd>'+
+      '<dt>Listing type</dt><dd>'+(pool?'AMM / pool listing':'Auction-house escrow')+'</dd>'+
+      '<dt>Auction house</dt><dd>'+(pool?'none — fills via the pool program':x.it.ah)+'</dd>'+
+      '<dt>Moonrank</dt><dd>'+(x.it.rank||'unranked')+'</dd>';
+    document.getElementById('sWarn').innerHTML= pool
+      ? '<b>This one is a pool listing, not an escrow listing.</b> It has no auction-house account, so it fills '+
+        'through the AMM program against a liquidity pool rather than against a named seller — a different '+
+        'instruction entirely. Any aggregator has to branch on this, and it is the kind of detail that quietly '+
+        'breaks a naive integration. Six of the 48 asks on this page are pool listings.'
+      : '<b>These fields are the entire fill.</b> A real buy hands them to the marketplace program, gets back an '+
+        'unsigned transaction, and asks the buyer’s wallet to sign it. Two things stop that here: the instruction '+
+        'builder needs an API key (it returns <b>401</b> without one), and a published artifact has no wallet and '+
+        'no outbound network. Everything else on this page is real.';
+    document.getElementById('sME').href='https://magiceden.io/item-details/'+x.it.mint;
+    sheet.classList.add('on');
+    document.getElementById('sClose').focus();
+  }
+  document.getElementById('sClose').addEventListener('click',function(){sheet.classList.remove('on');});
+  sheet.addEventListener('click',function(e){if(e.target===sheet)sheet.classList.remove('on');});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')sheet.classList.remove('on');});
+  document.getElementById('clearF').addEventListener('click',function(){pick(null);});
+
+  var tb=document.getElementById('theme');
+  tb.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    if(!cur)cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    var nx=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nx);
+    tb.innerHTML=nx==='dark'?'&#9728;&#65039;':'&#127769;';
+  });
+  render();
+})();
+</script>

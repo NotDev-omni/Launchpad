@@ -1,0 +1,735 @@
+<title>Armory Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#0A0C0B; --panel:#121615; --panel-2:#171D1B; --panel-3:#1C2321;
+  --line:#232B29; --line-hot:#3A4643;
+  --ink:#E4EBE8; --ink-dim:#8A9A95; --ink-faint:#5B6966;
+
+  --r1:#8E9A9E; --r2:#4FD48E; --r3:#3E9CFF; --r4:#A855F7;
+  --r5:#F0489B; --r6:#FF3B47; --r7:#FFB020;
+  --up:#4FD48E; --down:#FF5C57;
+
+  /* lane accents — defaults are CRATE, overridden below */
+  --acc:#FF3B47; --acc-2:#FFB020;
+  --acc-wash:rgba(255,59,71,.09);
+
+  --display:'Oxanium',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --notch:polygon(0 12px,12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);
+  --notch-sm:polygon(0 8px,8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+}
+:root[data-lane="raise"]{
+  --acc:#3E9CFF; --acc-2:#4FD48E;
+  --acc-wash:rgba(62,156,255,.08);
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--body);font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.013) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em;}
+h2{font-size:1.32rem;font-weight:700;text-transform:uppercase;}
+h3{font-size:.98rem;font-weight:700;}
+p{margin:0;}
+button{font-family:var(--display);cursor:pointer;border:0;background:none;color:inherit;}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;}
+
+.eyebrow{font-family:var(--mono);font-size:.63rem;font-weight:500;text-transform:uppercase;letter-spacing:.2em;color:var(--ink-faint);}
+.mono{font-family:var(--mono);}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+.up{color:var(--up);} .down{color:var(--down);}
+.wrap{max-width:1340px;margin:0 auto;padding:0 22px;}
+
+/* ================= NAV ================= */
+.nav{
+  position:sticky;top:0;z-index:50;background:rgba(10,12,11,.93);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+}
+.nav-in{display:flex;align-items:center;gap:20px;height:58px;}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.07em;font-size:.92rem;white-space:nowrap;}
+.logo i{width:8px;height:8px;background:var(--acc);box-shadow:0 0 12px var(--acc);transition:background .3s ease,box-shadow .3s ease;}
+.links{display:flex;gap:2px;}
+.links a{
+  font-family:var(--display);font-size:.79rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--ink-dim);text-decoration:none;padding:7px 11px;transition:color .15s ease,background .15s ease;
+}
+.links a:hover{color:var(--ink);background:var(--panel);}
+.links a.on{color:var(--acc);}
+@media(max-width:1080px){.links{display:none;}}
+
+.search{
+  flex:1;min-width:0;display:flex;align-items:center;gap:9px;
+  background:var(--panel);border:1px solid var(--line);padding:7px 12px;clip-path:var(--notch-sm);
+}
+.search input{
+  flex:1;min-width:0;background:none;border:0;color:var(--ink);font-family:var(--body);font-size:.86rem;outline:none;
+}
+.search input::placeholder{color:var(--ink-faint);}
+.search kbd{
+  font-family:var(--mono);font-size:.62rem;color:var(--ink-faint);
+  border:1px solid var(--line-hot);padding:1px 5px;
+}
+
+/* lane switch — the centrepiece */
+.lane-sw{display:flex;border:1px solid var(--line-hot);clip-path:var(--notch-sm);overflow:hidden;flex-shrink:0;}
+.lane-sw button{
+  font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;
+  padding:8px 15px;color:var(--ink-faint);transition:all .22s ease;
+}
+.lane-sw button.on{background:var(--acc);color:#08110C;}
+.lane-sw button:not(.on):hover{color:var(--ink-dim);background:var(--panel);}
+
+.connect{
+  background:var(--acc);color:#08110C;font-size:.76rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.1em;padding:9px 16px;
+  clip-path:var(--notch-sm);transition:filter .16s ease,background .3s ease;white-space:nowrap;
+}
+.connect:hover{filter:brightness(1.13);}
+
+/* ================= TICKER ================= */
+.ticker{
+  border-bottom:1px solid var(--line);background:var(--panel);overflow:hidden;height:34px;
+  display:flex;align-items:center;
+}
+:root[data-lane="raise"] .ticker{display:none;}
+.ticker-tag{
+  flex-shrink:0;background:var(--acc);color:#08110C;font-family:var(--mono);font-size:.6rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.15em;padding:4px 11px;margin-right:14px;
+}
+.ticker-track{display:flex;gap:30px;white-space:nowrap;animation:slide 44s linear infinite;}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-track:hover{animation-play-state:paused;}
+.tk{font-family:var(--mono);font-size:.7rem;color:var(--ink-dim);display:flex;gap:7px;align-items:center;}
+.tk b{color:var(--ink);font-weight:500;}
+.tk i{width:5px;height:5px;display:block;}
+
+/* ================= HERO ================= */
+.hero{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;padding:22px 0;}
+@media(max-width:960px){.hero{grid-template-columns:1fr;}}
+
+.feature{
+  position:relative;border:1px solid var(--line);clip-path:var(--notch);
+  background:linear-gradient(115deg,var(--panel-2),var(--panel) 60%);
+  padding:26px;display:flex;flex-direction:column;justify-content:space-between;gap:22px;min-height:250px;overflow:hidden;
+}
+.feature::after{
+  content:"";position:absolute;right:-70px;top:-70px;width:300px;height:300px;
+  background:radial-gradient(circle,var(--acc-wash),transparent 68%);pointer-events:none;
+}
+.live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.16em;color:var(--acc);}
+.live i{width:6px;height:6px;background:var(--acc);border-radius:50%;animation:blip 1.5s ease-in-out infinite;}
+@keyframes blip{0%,100%{opacity:1;box-shadow:0 0 0 0 var(--acc)}50%{opacity:.45;box-shadow:0 0 0 5px transparent}}
+.feature h1{font-family:var(--display);font-size:clamp(1.9rem,4vw,2.9rem);font-weight:800;text-transform:uppercase;line-height:.98;margin:9px 0 7px;}
+.feature .by{font-size:.85rem;color:var(--ink-dim);}
+.feature .by b{color:var(--acc-2);font-weight:600;}
+.f-stats{display:flex;gap:26px;flex-wrap:wrap;position:relative;}
+.f-stats div{display:flex;flex-direction:column;gap:1px;}
+.f-stats .k{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-faint);}
+.f-stats .v{font-family:var(--display);font-size:1.28rem;font-weight:700;font-variant-numeric:tabular-nums;}
+.f-cta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:relative;}
+.mint-btn{
+  background:var(--acc);color:#08110C;font-size:.84rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  padding:12px 24px;clip-path:var(--notch-sm);transition:filter .16s ease;
+}
+.mint-btn:hover{filter:brightness(1.13);}
+.progress{flex:1;min-width:150px;}
+.progress .bar{height:6px;background:var(--panel-3);border:1px solid var(--line);position:relative;overflow:hidden;}
+.progress .bar span{position:absolute;inset:0 34% 0 0;background:var(--acc);box-shadow:0 0 14px var(--acc);}
+.progress .lbl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.62rem;color:var(--ink-faint);margin-top:5px;}
+
+.upcoming{border:1px solid var(--line);clip-path:var(--notch);background:var(--panel);display:flex;flex-direction:column;}
+.upcoming .hd{padding:13px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+.up-row{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:11px 18px;border-bottom:1px solid var(--line);transition:background .15s ease;}
+.up-row:last-child{border-bottom:0;}
+.up-row:hover{background:var(--panel-2);}
+.up-row .av{width:34px;height:34px;clip-path:var(--notch-sm);}
+.up-row .nm{font-family:var(--display);font-weight:700;font-size:.86rem;line-height:1.25;}
+.up-row .sub{font-family:var(--mono);font-size:.63rem;color:var(--ink-faint);}
+.up-row .t{font-family:var(--mono);font-size:.66rem;color:var(--acc-2);text-align:right;white-space:nowrap;}
+
+/* ================= SECTION HEAD ================= */
+.sec{padding:26px 0;}
+.sec-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+.tabs{display:flex;gap:1px;}
+.tabs button{
+  font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
+  padding:7px 13px;color:var(--ink-faint);border-bottom:2px solid transparent;transition:all .15s ease;
+}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--acc);}
+.tabs button:hover{color:var(--ink-dim);}
+
+/* ================= RANK TABLE ================= */
+.tbl-wrap{border:1px solid var(--line);clip-path:var(--notch);background:var(--panel);overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:940px;}
+thead th{
+  font-family:var(--mono);font-size:.6rem;font-weight:500;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--ink-faint);text-align:right;padding:11px 14px;border-bottom:1px solid var(--line-hot);
+  white-space:nowrap;user-select:none;
+}
+thead th:nth-child(1),thead th:nth-child(2){text-align:left;}
+thead th.sortable{cursor:pointer;transition:color .15s ease;}
+thead th.sortable:hover{color:var(--ink-dim);}
+thead th.act{color:var(--acc);}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-size:.79rem;font-variant-numeric:tabular-nums;color:var(--ink-dim);white-space:nowrap;}
+tbody tr{transition:background .13s ease;cursor:pointer;}
+tbody tr:hover{background:var(--panel-2);}
+tbody tr:last-child td{border-bottom:0;}
+td.rk{color:var(--ink-faint);text-align:left;width:38px;}
+td.col{text-align:left;}
+.cw{display:flex;align-items:center;gap:11px;}
+.cw .av{width:32px;height:32px;flex-shrink:0;clip-path:var(--notch-sm);}
+.cw .nm{font-family:var(--display);font-size:.88rem;font-weight:700;color:var(--ink);letter-spacing:.01em;}
+.cw .vf{color:var(--acc-2);font-size:.7rem;}
+td .px{color:var(--ink);}
+
+/* risk pill — our column, not OpenSea's */
+.risk{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:600;padding:2px 8px;border:1px solid;letter-spacing:.06em;}
+.risk.safe{color:var(--r2);border-color:rgba(79,212,142,.4);background:rgba(79,212,142,.07);}
+.risk.warn{color:var(--r7);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.07);}
+.risk.bad{color:var(--r6);border-color:rgba(255,59,71,.4);background:rgba(255,59,71,.07);}
+.lock{display:inline-block;width:100%;text-align:right;}
+
+/* ================= COLLECTION ================= */
+.banner{
+  position:relative;height:150px;border:1px solid var(--line);clip-path:var(--notch);overflow:hidden;margin-bottom:-40px;
+}
+.coll-hd{display:flex;align-items:flex-end;gap:16px;padding:0 22px;position:relative;z-index:2;flex-wrap:wrap;}
+.coll-hd .big{width:84px;height:84px;border:2px solid var(--ground);clip-path:var(--notch-sm);flex-shrink:0;}
+.coll-meta{flex:1;min-width:200px;padding-bottom:5px;}
+.coll-meta .t{font-family:var(--display);font-size:1.55rem;font-weight:800;text-transform:uppercase;line-height:1.05;}
+.coll-meta .s{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);}
+.coll-meta .s b{color:var(--acc-2);}
+
+.statbar{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--line);clip-path:var(--notch);margin:20px 0;}
+@media(max-width:820px){.statbar{grid-template-columns:repeat(3,1fr);}}
+.statbar div{background:var(--panel);padding:12px 15px;display:flex;flex-direction:column;gap:2px;}
+.statbar .k{font-family:var(--mono);font-size:.57rem;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-faint);}
+.statbar .v{font-family:var(--display);font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums;}
+
+.market{display:grid;grid-template-columns:214px 1fr;gap:18px;align-items:start;}
+@media(max-width:900px){.market{grid-template-columns:1fr;}}
+
+.rail{border:1px solid var(--line);clip-path:var(--notch);background:var(--panel);position:sticky;top:104px;}
+.rail-sec{padding:14px 16px;border-bottom:1px solid var(--line);}
+.rail-sec:last-child{border-bottom:0;}
+.rail-sec .h{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-faint);margin-bottom:10px;}
+.chk{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;cursor:pointer;font-size:.8rem;color:var(--ink-dim);transition:color .13s ease;}
+.chk:hover{color:var(--ink);}
+.chk .l{display:flex;align-items:center;gap:8px;}
+.chk .box{width:12px;height:12px;border:1px solid var(--line-hot);flex-shrink:0;transition:all .15s ease;}
+.chk.on .box{background:var(--tc,var(--acc));border-color:var(--tc,var(--acc));box-shadow:0 0 9px var(--tc,var(--acc));}
+.chk.on{color:var(--ink);}
+.chk .ct{font-family:var(--mono);font-size:.66rem;color:var(--ink-faint);}
+.rng{display:flex;gap:7px;align-items:center;}
+.rng input{
+  width:100%;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
+  font-family:var(--mono);font-size:.72rem;padding:6px 8px;outline:none;
+}
+.rng input:focus{border-color:var(--acc);}
+
+.grid-bar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.pill{
+  font-family:var(--mono);font-size:.68rem;padding:6px 11px;border:1px solid var(--line-hot);
+  color:var(--ink-dim);transition:all .15s ease;cursor:pointer;
+}
+.pill:hover{border-color:var(--acc);color:var(--acc);}
+.pill.on{border-color:var(--acc);color:var(--acc);background:var(--acc-wash);}
+select{
+  background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);
+  font-family:var(--mono);font-size:.7rem;padding:6px 9px;outline:none;cursor:pointer;
+}
+.count{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);margin-left:auto;}
+
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px;}
+.items.big{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
+.item{
+  border:1px solid var(--line);background:var(--panel);clip-path:var(--notch-sm);overflow:hidden;
+  cursor:pointer;transition:border-color .16s ease,transform .16s ease;position:relative;
+}
+.item:hover{border-color:var(--tc);transform:translateY(-2px);}
+.item .art{aspect-ratio:1;position:relative;overflow:hidden;background:var(--panel-2);}
+.item .art svg{width:100%;height:100%;display:block;}
+.item .rk{
+  position:absolute;top:7px;left:7px;font-family:var(--mono);font-size:.58rem;font-weight:600;
+  padding:2px 6px;background:rgba(10,12,11,.82);color:var(--tc);letter-spacing:.08em;
+}
+.item .info{padding:9px 10px;display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--line);}
+.item .nm{font-family:var(--display);font-size:.82rem;font-weight:700;letter-spacing:.01em;}
+.item .pr{display:flex;justify-content:space-between;align-items:baseline;gap:6px;}
+.item .pr .p{font-family:var(--mono);font-size:.76rem;color:var(--ink);font-variant-numeric:tabular-nums;}
+.item .pr .l{font-family:var(--mono);font-size:.62rem;color:var(--ink-faint);}
+.item .tierbar{height:2px;background:var(--tc);}
+.item .buy{
+  position:absolute;left:0;right:0;bottom:0;background:var(--acc);color:#08110C;
+  font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.11em;padding:8px;
+  transform:translateY(100%);transition:transform .18s ease;text-align:center;
+}
+.item:hover .buy{transform:translateY(0);}
+
+.empty{padding:50px 20px;text-align:center;color:var(--ink-faint);font-family:var(--mono);font-size:.8rem;grid-column:1/-1;}
+
+/* sweep bar */
+.sweep{
+  position:sticky;bottom:0;z-index:40;margin-top:16px;
+  border:1px solid var(--acc);background:rgba(10,12,11,.96);backdrop-filter:blur(10px);
+  clip-path:var(--notch);padding:12px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.sweep .lbl{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-faint);}
+.sweep input[type=range]{flex:1;min-width:130px;accent-color:var(--acc);}
+.sweep .tot{font-family:var(--display);font-size:1.05rem;font-weight:700;font-variant-numeric:tabular-nums;}
+
+/* ================= NOTES ================= */
+.notes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:900px){.notes{grid-template-columns:1fr;}}
+.note{border:1px solid var(--line);clip-path:var(--notch);background:var(--panel);padding:18px;display:flex;flex-direction:column;gap:8px;}
+.note .tag{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--acc);}
+.note p{font-size:.86rem;color:var(--ink-dim);}
+.note b{color:var(--ink);font-weight:600;}
+footer{border-top:1px solid var(--line);margin-top:30px;padding:26px 0 50px;}
+
+@media (prefers-reduced-motion:reduce){
+  .ticker-track{animation:none;} .live i{animation:none;}
+  *{transition-duration:.01ms !important;}
+}
+</style>
+
+<div class="nav">
+  <div class="wrap nav-in">
+    <div class="logo"><i></i> Armory</div>
+    <nav class="links">
+      <a href="#" class="on">Discover</a><a href="#">Collections</a><a href="#">Tokens</a>
+      <a href="#">Crates</a><a href="#">Drops</a><a href="#">Activity</a><a href="#">Studio</a>
+    </nav>
+    <div class="search">
+      <span style="color:var(--ink-faint);font-size:.8rem">⌕</span>
+      <input placeholder="Search collections, tokens, wallets" aria-label="Search">
+      <kbd>/</kbd>
+    </div>
+    <div class="lane-sw">
+      <button id="laneCrate" class="on">Crate</button>
+      <button id="laneRaise">Raise</button>
+    </div>
+    <button class="connect">Connect</button>
+  </div>
+</div>
+
+<div class="ticker">
+  <div class="wrap" style="display:flex;align-items:center;overflow:hidden">
+    <span class="ticker-tag">Live pulls</span>
+    <div class="ticker-track" id="tick"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="feature">
+      <div>
+        <span class="live"><i></i> Minting now · closes in 04:11:38</span>
+        <h1>Vault Wardens</h1>
+        <p class="by">by <b>outpost.sol</b> · verified creator · 4 prior launches, 0 rugs</p>
+      </div>
+      <div class="f-stats">
+        <div><span class="k">Price</span><span class="v">1.85 ◎</span></div>
+        <div><span class="k">Supply</span><span class="v">5,000</span></div>
+        <div><span class="k">Minted</span><span class="v">1,704</span></div>
+        <div><span class="k">Unique</span><span class="v">1,122</span></div>
+      </div>
+      <div class="f-cta">
+        <button class="mint-btn">Open crate · 1.85 ◎</button>
+        <div class="progress">
+          <div class="bar"><span></span></div>
+          <div class="lbl"><span>34% minted</span><span>3,296 left</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="upcoming">
+      <div class="hd"><h2 style="font-size:.92rem">Upcoming</h2><span class="eyebrow">Next 72h</span></div>
+      <div id="upcoming"></div>
+    </div>
+  </div>
+
+  <!-- RANKINGS -->
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="tabs" id="rankTabs">
+        <button class="on">Trending</button><button>Top</button><button>Graduating</button><button>Watchlist</button>
+      </div>
+      <span class="eyebrow" id="laneNote">Crate lane · permissionless · risk shown inline</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Collection</th>
+          <th class="sortable" data-k="floor">Floor</th>
+          <th class="sortable" data-k="ch">24h</th>
+          <th class="sortable" data-k="vol">Volume</th>
+          <th class="sortable" data-k="owners">Owners</th>
+          <th class="sortable" data-k="listed">Listed</th>
+          <th class="act">Risk</th><th class="act">LP</th>
+        </tr></thead>
+        <tbody id="rank"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COLLECTION -->
+  <div class="sec">
+    <div class="banner" id="banner"></div>
+    <div class="coll-hd">
+      <div class="big" id="collAv"></div>
+      <div class="coll-meta">
+        <div class="t">Vault Wardens</div>
+        <div class="s">by <b>outpost.sol</b> · 5,000 items · Metaplex Core · royalties enforced 5%</div>
+      </div>
+    </div>
+
+    <div class="statbar">
+      <div><span class="k">Floor</span><span class="v">2.14 ◎</span></div>
+      <div><span class="k">24h vol</span><span class="v up">418 ◎</span></div>
+      <div><span class="k">Best offer</span><span class="v">1.97 ◎</span></div>
+      <div><span class="k">Listed</span><span class="v">6.2%</span></div>
+      <div><span class="k">Owners</span><span class="v">2,841</span></div>
+      <div><span class="k">Royalty</span><span class="v">5%</span></div>
+    </div>
+
+    <div class="market">
+      <aside class="rail">
+        <div class="rail-sec">
+          <div class="h">Status</div>
+          <div class="chk on" data-status="buy"><span class="l"><span class="box"></span>Buy now</span><span class="ct">318</span></div>
+          <div class="chk" data-status="auction"><span class="l"><span class="box"></span>On auction</span><span class="ct">44</span></div>
+          <div class="chk" data-status="offer"><span class="l"><span class="box"></span>Has offers</span><span class="ct">207</span></div>
+        </div>
+        <div class="rail-sec">
+          <div class="h">Price · SOL</div>
+          <div class="rng">
+            <input type="number" id="pmin" placeholder="Min" aria-label="Minimum price">
+            <input type="number" id="pmax" placeholder="Max" aria-label="Maximum price">
+          </div>
+        </div>
+        <div class="rail-sec">
+          <div class="h">Rarity tier</div>
+          <div id="tierFilters"></div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="grid-bar">
+          <button class="pill on" id="dense">Compact</button>
+          <button class="pill" id="loose">Large</button>
+          <select id="sort">
+            <option value="pl">Price · low to high</option>
+            <option value="ph">Price · high to low</option>
+            <option value="rare">Rarity · best first</option>
+            <option value="recent">Recently listed</option>
+          </select>
+          <span class="count" id="count"></span>
+        </div>
+        <div class="items" id="items"></div>
+        <div class="sweep">
+          <span class="lbl">Sweep</span>
+          <input type="range" id="sweep" min="0" max="20" value="0" aria-label="Sweep quantity">
+          <span class="num" id="sweepN" style="font-size:.75rem;color:var(--ink-dim)">0 items</span>
+          <span class="tot" id="sweepT">0.00 ◎</span>
+          <button class="mint-btn" style="padding:9px 18px;font-size:.76rem">Sweep floor</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="sec">
+    <div class="sec-hd"><h2>What we changed and why</h2><span class="eyebrow">Direction 02 · marketplace</span></div>
+    <div class="notes">
+      <div class="note">
+        <span class="tag">01 · Risk is a column</span>
+        <h3>Trust sits in the table</h3>
+        <p>OpenSea shows floor, volume, owners. We add <b>Risk</b> and <b>LP</b> as first-class sortable columns, right next to price. If trust is the thing you're selling, it cannot live behind a tab — it has to be scannable in the same glance as the number people came for.</p>
+      </div>
+      <div class="note">
+        <span class="tag">02 · Rarity is the palette</span>
+        <h3>Color is never decoration</h3>
+        <p>OpenSea's cards are neutral chrome around artwork. Ours are <b>tier-coded on the border, badge, and base rail</b>, so you read the rarity distribution of an entire grid without looking at a single trait. It's the one saturated colour in the product.</p>
+      </div>
+      <div class="note">
+        <span class="tag">03 · The lane switch</span>
+        <h3>One toggle, two products</h3>
+        <p>OpenSea ships a Collector/Pro toggle. Ours goes further — flipping to <b>Raise</b> swaps the accent from hot to cool, kills the live ticker, drops density, and re-labels the trust columns to audit and escrow. Same engine, deliberately different room. Try it in the header.</p>
+      </div>
+      <div class="note">
+        <span class="tag">04 · Hard edges</span>
+        <h3>Notched panels, not rounded cards</h3>
+        <p>Every marketplace in crypto uses the same 12px rounded card. The <b>clipped corner</b> is our structural signature — it reads as hardware and industrial, matches the crate mechanic, and makes a screenshot recognisable as ours from across a feed.</p>
+      </div>
+      <div class="note">
+        <span class="tag">05 · Sweep is sticky</span>
+        <h3>The bulk action follows you</h3>
+        <p>Sweeping is how volume actually happens, so the sweep bar is <b>pinned to the viewport</b> instead of buried above the grid. Drag it and the total updates live against real floor prices.</p>
+      </div>
+      <div class="note">
+        <span class="tag">06 · Typography does the work</span>
+        <h3>Oxanium + IBM Plex</h3>
+        <p>Angular display face for names and numbers that should feel like a HUD; Plex Sans and Mono for everything that must stay readable at 12px. <b>Every figure is tabular</b>, so columns line up and scanning down a price column is effortless.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer><p class="eyebrow">Armory Market · direction 02 · toggle the lane switch, sort the table, filter the grid</p></footer>
+</div>
+
+<script>
+(function(){
+  var TIERS=[
+    {k:'Common',v:'--r1'},{k:'Uncommon',v:'--r2'},{k:'Rare',v:'--r3'},
+    {k:'Epic',v:'--r4'},{k:'Classified',v:'--r5'},{k:'Covert',v:'--r6'},{k:'Mythic',v:'--r7'}
+  ];
+  var W=[5800,2200,1150,550,210,75,15],TOT=10000;
+  function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+  // deterministic PRNG so art is stable across re-renders
+  function rng(seed){var s=seed>>>0;return function(){s^=s<<13;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
+  function pickTier(r){var x=r()*TOT,a=0;for(var i=0;i<7;i++){a+=W[i];if(x<a)return i;}return 0;}
+
+  // generative sigil — stands in for artwork, CSP blocks remote images anyway
+  var gid=0; // unique gradient ids — duplicates would make the first definition win everywhere
+  function sigil(seed,tier,size){
+    var r=rng(seed*2654435761),c=css(TIERS[tier].v),s=size||100,o='',id='g'+(++gid);
+    var op0=(0.22+r()*0.20).toFixed(2);
+    o+='<defs><radialGradient id="'+id+'" cx="50%" cy="38%">'+
+       '<stop offset="0%" stop-color="'+c+'" stop-opacity="'+op0+'"/>'+
+       '<stop offset="100%" stop-color="'+c+'" stop-opacity="0"/></radialGradient></defs>';
+    o+='<rect width="'+s+'" height="'+s+'" fill="#151B19"/><rect width="'+s+'" height="'+s+'" fill="url(#'+id+')"/>';
+    var n=3+Math.floor(r()*4);
+    for(var i=0;i<n;i++){
+      var cx=s*(.24+r()*.52),cy=s*(.22+r()*.52),rad=s*(.07+r()*.19),op=(.16+r()*.5).toFixed(2);
+      if(r()>.45){
+        var pts=[],k,sides=3+Math.floor(r()*4),rot=r()*6.28;
+        for(k=0;k<sides;k++){var a=rot+k*6.283/sides;pts.push((cx+Math.cos(a)*rad).toFixed(1)+','+(cy+Math.sin(a)*rad).toFixed(1));}
+        o+='<polygon points="'+pts.join(' ')+'" fill="none" stroke="'+c+'" stroke-opacity="'+op+'" stroke-width="'+(.6+r()*1.5).toFixed(1)+'"/>';
+      }else{
+        o+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+rad.toFixed(1)+'" fill="none" stroke="'+c+'" stroke-opacity="'+op+'" stroke-width="'+(.6+r()*1.2).toFixed(1)+'"/>';
+      }
+    }
+    var by=s*(.62+r()*.2);
+    o+='<line x1="0" y1="'+by.toFixed(1)+'" x2="'+s+'" y2="'+by.toFixed(1)+'" stroke="'+c+'" stroke-opacity=".3" stroke-width=".8"/>';
+    return '<svg viewBox="0 0 '+s+' '+s+'" preserveAspectRatio="none">'+o+'</svg>';
+  }
+  function avatar(el,seed,tier){el.innerHTML=sigil(seed,tier,60);el.firstChild.style.width='100%';el.firstChild.style.height='100%';}
+
+  /* ---------- ticker ---------- */
+  var NAMES=['Vault Wardens','Hollow Signal','Ferrous Kin','Null Sector','Deep Cache','Ashfall','Iron Liturgy','Pale Circuit'];
+  var tick=document.getElementById('tick');
+  function buildTicker(){
+    var h='',i;
+    for(i=0;i<20;i++){
+      var t=pickTier(rng(i*7919+13)),r=rng(i*104729);
+      h+='<span class="tk"><i style="background:var('+TIERS[t].v+')"></i>'+
+         '<b>'+NAMES[i%NAMES.length]+' #'+(1000+Math.floor(r()*8999))+'</b>'+
+         TIERS[t].k+' · '+(0.4+r()*11).toFixed(2)+' ◎</span>';
+    }
+    tick.innerHTML=h+h; // duplicated for seamless -50% loop
+  }
+
+  /* ---------- upcoming ---------- */
+  var UP=[
+    ['Hollow Signal','outpost.sol','Today 18:00'],['Ferrous Kin','anvil.sol','Tomorrow 14:00'],
+    ['Null Sector','deadlight.sol','Tomorrow 21:00'],['Deep Cache','warden.sol','Wed 16:00']
+  ];
+  var upEl=document.getElementById('upcoming');
+  UP.forEach(function(u,i){
+    var t=2+(i%5),d=document.createElement('div');
+    d.className='up-row';
+    d.innerHTML='<div class="av"></div><div><div class="nm">'+u[0]+'</div><div class="sub">'+u[1]+'</div></div><div class="t">'+u[2]+'</div>';
+    upEl.appendChild(d);
+    avatar(d.querySelector('.av'),i*37+5,t);
+  });
+
+  /* ---------- rankings ---------- */
+  var ROWS=NAMES.concat(['Cold Harbour','Rust Choir','Mono Estate','Gilded Fault']).map(function(n,i){
+    var r=rng(i*7717+91);
+    return {n:n,vf:r()>.42,floor:+(0.3+r()*14).toFixed(2),ch:+((r()*2-.75)*38).toFixed(1),
+      vol:Math.floor(80+r()*4200),owners:Math.floor(400+r()*5200),listed:+(1+r()*13).toFixed(1),
+      risk:r(),lp:r()>.3,seed:i*613+7,tier:pickTier(rng(i*31+3))};
+  });
+  var rankEl=document.getElementById('rank'),sortKey='vol',sortDir=-1;
+  function riskPill(v,lane){
+    if(lane==='raise'){
+      return v>.62?'<span class="risk safe">Audited</span>':v>.3?'<span class="risk warn">In review</span>':'<span class="risk bad">Unaudited</span>';
+    }
+    return v>.62?'<span class="risk safe">Low</span>':v>.3?'<span class="risk warn">Medium</span>':'<span class="risk bad">High</span>';
+  }
+  function renderRank(){
+    var lane=document.documentElement.getAttribute('data-lane')||'crate';
+    var rows=ROWS.slice().sort(function(a,b){return (a[sortKey]-b[sortKey])*sortDir;});
+    rankEl.innerHTML='';
+    rows.forEach(function(d,i){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td class="rk">'+(i+1)+'</td>'+
+        '<td class="col"><span class="cw"><span class="av"></span><span><span class="nm">'+d.n+'</span> '+(d.vf?'<span class="vf">◈</span>':'')+'</span></span></td>'+
+        '<td class="px">'+d.floor.toFixed(2)+' ◎</td>'+
+        '<td class="'+(d.ch>=0?'up':'down')+'">'+(d.ch>=0?'+':'')+d.ch.toFixed(1)+'%</td>'+
+        '<td class="px">'+d.vol.toLocaleString()+' ◎</td>'+
+        '<td>'+d.owners.toLocaleString()+'</td>'+
+        '<td>'+d.listed.toFixed(1)+'%</td>'+
+        '<td>'+riskPill(d.risk,lane)+'</td>'+
+        '<td><span class="lock" style="color:'+(d.lp?'var(--r2)':'var(--ink-faint)')+'">'+
+          (lane==='raise'?(d.lp?'Escrowed':'—'):(d.lp?'Locked ∞':'Unlocked'))+'</span></td>';
+      rankEl.appendChild(tr);
+      avatar(tr.querySelector('.av'),d.seed,d.tier);
+    });
+  }
+  document.querySelectorAll('th.sortable').forEach(function(th){
+    th.addEventListener('click',function(){
+      var k=th.dataset.k;
+      if(sortKey===k){sortDir*=-1;}else{sortKey=k;sortDir=-1;}
+      renderRank();
+    });
+  });
+  document.querySelectorAll('#rankTabs button').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('#rankTabs button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');renderRank();
+    });
+  });
+
+  /* ---------- items ---------- */
+  var ITEMS=[];
+  (function(){
+    for(var i=0;i<64;i++){
+      var r=rng(i*2246822519+17),t=pickTier(rng(i*99991+5));
+      ITEMS.push({id:1000+i*7,tier:t,seed:i*811+29,
+        price:+((1.6+Math.pow(r(),2)*22)*(1+t*.38)).toFixed(2),
+        rank:Math.floor(1+r()*5000),
+        status:r()>.82?'auction':(r()>.62?'offer':'buy'),
+        listedAt:Math.floor(r()*10000)});
+    }
+  })();
+
+  var active={status:{buy:true},tiers:{},min:null,max:null,big:false,sort:'pl'};
+  var itemsEl=document.getElementById('items'),countEl=document.getElementById('count');
+
+  // tier filter checkboxes
+  var tf=document.getElementById('tierFilters');
+  TIERS.forEach(function(t,i){
+    var n=ITEMS.filter(function(x){return x.tier===i;}).length;
+    var d=document.createElement('div');
+    d.className='chk';d.style.setProperty('--tc','var('+t.v+')');d.dataset.tier=i;
+    d.innerHTML='<span class="l"><span class="box"></span>'+t.k+'</span><span class="ct">'+n+'</span>';
+    tf.appendChild(d);
+  });
+
+  function filtered(){
+    var st=Object.keys(active.status).filter(function(k){return active.status[k];});
+    var tr=Object.keys(active.tiers).filter(function(k){return active.tiers[k];});
+    var out=ITEMS.filter(function(x){
+      if(st.length && st.indexOf(x.status)<0) return false;
+      if(tr.length && tr.indexOf(String(x.tier))<0) return false;
+      if(active.min!==null && x.price<active.min) return false;
+      if(active.max!==null && x.price>active.max) return false;
+      return true;
+    });
+    out.sort(function(a,b){
+      if(active.sort==='pl')return a.price-b.price;
+      if(active.sort==='ph')return b.price-a.price;
+      if(active.sort==='rare')return b.tier-a.tier||a.rank-b.rank;
+      return b.listedAt-a.listedAt;
+    });
+    return out;
+  }
+
+  function render(){
+    var list=filtered();
+    itemsEl.className='items'+(active.big?' big':'');
+    countEl.textContent=list.length+' of '+ITEMS.length+' items';
+    if(!list.length){itemsEl.innerHTML='<div class="empty">No items match these filters. Loosen the price range or clear a tier.</div>';updateSweep();return;}
+    itemsEl.innerHTML='';
+    list.slice(0,36).forEach(function(x){
+      var t=TIERS[x.tier],d=document.createElement('div');
+      d.className='item';d.style.setProperty('--tc','var('+t.v+')');
+      d.innerHTML='<div class="art">'+sigil(x.seed,x.tier,100)+'<span class="rk">#'+x.rank+'</span></div>'+
+        '<div class="tierbar"></div>'+
+        '<div class="info"><span class="nm">Warden #'+x.id+'</span>'+
+        '<span class="pr"><span class="p">'+x.price.toFixed(2)+' ◎</span><span class="l">'+t.k+'</span></span></div>'+
+        '<div class="buy">'+(x.status==='auction'?'Place bid':'Buy now')+'</div>';
+      itemsEl.appendChild(d);
+    });
+    updateSweep();
+  }
+
+  document.querySelectorAll('.chk[data-status]').forEach(function(c){
+    c.addEventListener('click',function(){
+      var k=c.dataset.status;active.status[k]=!active.status[k];
+      c.classList.toggle('on',active.status[k]);render();
+    });
+  });
+  tf.querySelectorAll('.chk').forEach(function(c){
+    c.addEventListener('click',function(){
+      var k=c.dataset.tier;active.tiers[k]=!active.tiers[k];
+      c.classList.toggle('on',active.tiers[k]);render();
+    });
+  });
+  document.getElementById('pmin').addEventListener('input',function(e){active.min=e.target.value===''?null:+e.target.value;render();});
+  document.getElementById('pmax').addEventListener('input',function(e){active.max=e.target.value===''?null:+e.target.value;render();});
+  document.getElementById('sort').addEventListener('change',function(e){active.sort=e.target.value;render();});
+  document.getElementById('dense').addEventListener('click',function(){
+    active.big=false;this.classList.add('on');document.getElementById('loose').classList.remove('on');render();
+  });
+  document.getElementById('loose').addEventListener('click',function(){
+    active.big=true;this.classList.add('on');document.getElementById('dense').classList.remove('on');render();
+  });
+
+  /* ---------- sweep ---------- */
+  var sweepEl=document.getElementById('sweep'),sweepN=document.getElementById('sweepN'),sweepT=document.getElementById('sweepT');
+  function updateSweep(){
+    var n=+sweepEl.value,list=filtered().slice().sort(function(a,b){return a.price-b.price;});
+    n=Math.min(n,list.length);
+    var tot=list.slice(0,n).reduce(function(a,x){return a+x.price;},0);
+    sweepN.textContent=n+(n===1?' item':' items');
+    sweepT.textContent=tot.toFixed(2)+' ◎';
+  }
+  sweepEl.addEventListener('input',updateSweep);
+
+  /* ---------- lane switch ---------- */
+  var lc=document.getElementById('laneCrate'),lr=document.getElementById('laneRaise'),note=document.getElementById('laneNote');
+  function setLane(l){
+    document.documentElement.setAttribute('data-lane',l);
+    lc.classList.toggle('on',l==='crate');
+    lr.classList.toggle('on',l==='raise');
+    note.textContent = l==='raise'
+      ? 'Raise lane · KYC-gated · audit and escrow shown inline'
+      : 'Crate lane · permissionless · risk shown inline';
+    // accents live in CSS vars, but SVG art is baked — repaint it
+    buildTicker(); renderRank(); render();
+    upEl.querySelectorAll('.av').forEach(function(av,i){avatar(av,i*37+5,2+(i%5));});
+    avatar(document.getElementById('collAv'),777,l==='raise'?2:5);
+    document.getElementById('banner').innerHTML=sigil(1234,l==='raise'?2:5,140);
+  }
+  lc.addEventListener('click',function(){setLane('crate');});
+  lr.addEventListener('click',function(){setLane('raise');});
+
+  /* ---------- boot ---------- */
+  document.documentElement.setAttribute('data-lane','crate');
+  buildTicker();renderRank();render();
+  avatar(document.getElementById('collAv'),777,5);
+  document.getElementById('banner').innerHTML=sigil(1234,5,140);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();document.querySelector('.search input').focus();}
+  });
+})();
+</script>
