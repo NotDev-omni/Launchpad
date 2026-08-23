@@ -10,13 +10,14 @@ Open any file in `directions/` directly in a browser.
 
 | File | What it is |
 |---|---|
-| `directions/04-marketplace-live-data.html` | **The current direction.** Marketplace running on 48 real Solana listings. |
-| `directions/03-marketplace-playful.html` | Same design language, synthetic data, includes the crate-opening animation. |
+| `directions/05-marketplace-full.html` | **Start here.** The full OpenSea-shaped marketplace — banner carousel, categories, sortable rankings, collection pages, real listings across ~20 collections. |
+| `directions/04-marketplace-live-data.html` | Tighter single-page cut on 48 real listings. |
+| `directions/03-marketplace-playful.html` | The design language plus the crate-opening animation. |
 | `directions/02-marketplace-industrial.html` | Earlier dark/HUD direction. **Rejected** — kept for reference only. |
 | `directions/01-crate-mechanic.html` | The crate mechanic pitch: reel animation, motion spec, reference board. |
 
-`03` and `04` are the live direction. `01` and `02` are history — `01` still has the
-best writeup of *why* the crate mechanic works, even though its visual style was dropped.
+`03`–`05` are the live direction. `01` and `02` are history — `01` still has the best
+writeup of *why* the crate mechanic works, even though its visual style was dropped.
 
 ---
 
@@ -61,17 +62,46 @@ Everything is wrapped in a `prefers-reduced-motion` guard; keep that.
 
 ## Refreshing the listing data
 
+Two pipelines. Both need `pip install pillow`.
+
+**Full marketplace (direction 05)** — ~20 collections, banners, categories:
+
 ```bash
-pip install pillow
 cd data
-python fetch_listings.py    # pulls live listings + artwork from Magic Eden
-python gen.py               # rebuilds directions/04-marketplace-live-data.html
+python fetch_wide.py      # ~10 min, deliberately rate-limited
+python gen_market.py      # rebuilds directions/05-marketplace-full.html
 ```
 
-Edit `SYMBOLS` in `fetch_listings.py` to change which collections appear.
+**Single-page cut (direction 04)** — 4 collections, faster:
 
-Artwork is downloaded, center-cropped, resized to 224px and embedded as base64 WEBP,
-so the output page is fully self-contained and works offline. 48 listings ≈ 324 KB.
+```bash
+cd data
+python fetch_listings.py
+python gen.py
+```
+
+Edit `SYMBOLS` in either fetch script to change which collections appear.
+Categories for direction 05 are hand-tagged in `CATEGORY` in `gen_market.py` — the
+public API doesn't return usable category data.
+
+Artwork is downloaded, center-cropped, resized and embedded as base64 WEBP so the
+output pages are fully self-contained and work offline.
+
+### About the banners
+
+Magic Eden's public API doesn't expose collection banner assets, so `fetch_wide.py`
+**composites one per collection** from that collection's own item art — a blurred,
+darkened bed with a row of sharp tiles over it. If you get an API key with real banner
+URLs, replace `make_banner()` and everything downstream keeps working.
+
+### About the artwork
+
+It's the collection creators' art, pulled from public on-chain metadata. Fine for an
+internal design sketch — standard practice for marketplace mockups — but it is **not
+ours**. Swap it for real launches before anything ships publicly.
+
+`fetch_wide.py` paces itself at 1.6s between API calls and backs off on HTTP 429.
+Don't lower `PAUSE`; the API rate-limits hard and you'll just get empty results.
 
 ---
 
