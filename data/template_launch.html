@@ -1,0 +1,640 @@
+<meta charset="utf-8">
+<title>Trove Launchpad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F7F4FF;--surface:#FFFFFF;--surface-2:#F2EDFF;--surface-3:#E9E2FB;--border:#E5DEF7;
+  --text:#241B38;--text-dim:#6E6484;--text-faint:#9B93AD;--shadow:rgba(84,58,160,.13);
+  --r1:#A7AEC2;--r2:#35C99B;--r3:#4EA5F5;--r4:#9B6BFF;--r5:#FF74A8;--r6:#FF6B5A;--r7:#FFC145;
+  --up:#22A67F;--down:#EE5A48;
+  --acc:#7C5CFF;--acc-deep:#5B3FD1;--acc-wash:rgba(124,92,255,.11);--acc-2:#FF9F45;
+  --display:'Fredoka',system-ui,sans-serif;--body:'Plus Jakarta Sans',system-ui,sans-serif;
+  --rs:14px;--rm:20px;--rl:28px;--rp:999px;--spring:cubic-bezier(.34,1.56,.64,1);
+}
+:root[data-lane="pro"]{--acc:#4EA5F5;--acc-deep:#2C7FCB;--acc-wash:rgba(78,165,245,.11);--acc-2:#35C99B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161226;--surface:#1F1A33;--surface-2:#2A2342;--surface-3:#352C52;--border:#332A4F;
+  --text:#F0EBFF;--text-dim:#A79EC4;--text-faint:#7B7397;--shadow:rgba(0,0,0,.45);
+  --r1:#8A92A8;--r4:#AC85FF;--up:#3FD9A6;--down:#FF7D6C;
+  --acc:#9B7DFF;--acc-deep:#6D4FE3;--acc-wash:rgba(155,125,255,.15)}
+  :root:not([data-theme="light"])[data-lane="pro"]{--acc:#6FB8FF;--acc-deep:#3E8FDC;--acc-wash:rgba(111,184,255,.15)}}
+:root[data-theme="dark"]{
+  --bg:#161226;--surface:#1F1A33;--surface-2:#2A2342;--surface-3:#352C52;--border:#332A4F;
+  --text:#F0EBFF;--text-dim:#A79EC4;--text-faint:#7B7397;--shadow:rgba(0,0,0,.45);
+  --r1:#8A92A8;--r4:#AC85FF;--up:#3FD9A6;--down:#FF7D6C;
+  --acc:#9B7DFF;--acc-deep:#6D4FE3;--acc-wash:rgba(155,125,255,.15)}
+:root[data-theme="dark"][data-lane="pro"]{--acc:#6FB8FF;--acc-deep:#3E8FDC;--acc-wash:rgba(111,184,255,.15)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-family:var(--display);margin:0;font-weight:600;text-wrap:balance;line-height:1.12;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,4vw,2.8rem);font-weight:700}
+h2{font-size:clamp(1.25rem,2.2vw,1.65rem)}
+h3{font-size:1rem}
+p{margin:0}
+img{display:block}
+code{font-family:ui-monospace,monospace;font-size:.86em;background:var(--surface-2);padding:1px 5px;border-radius:5px}
+button{font-family:var(--display);font-weight:600;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.dim{color:var(--text-dim)}
+.num{font-variant-numeric:tabular-nums}
+.btn{background:var(--acc);color:#fff;font-size:.92rem;padding:11px 22px;border-radius:var(--rp);
+  box-shadow:0 4px 0 var(--acc-deep);transition:transform .12s,box-shadow .12s,filter .16s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--acc-deep)}
+.btn:disabled{background:var(--surface-3);color:var(--text-faint);box-shadow:none;cursor:not-allowed}
+.btn.sm{padding:8px 16px;font-size:.83rem;box-shadow:0 3px 0 var(--acc-deep)}
+.btn.sm:active{transform:translateY(3px)}
+.btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--border);box-shadow:0 3px 0 var(--border)}
+.btn.ghost:active{transform:translateY(3px);box-shadow:0 0 0 var(--border)}
+.btn.big{font-size:1.02rem;padding:14px 30px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:80;background:var(--bg);border-bottom:1px solid var(--border)}
+.nav-in{display:flex;align-items:center;gap:13px;height:68px}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:1.22rem;white-space:nowrap;cursor:pointer}
+.logo svg{width:31px;height:31px;flex-shrink:0}
+.links{display:flex;gap:2px;flex:1}
+.links button{font-weight:500;font-size:.9rem;color:var(--text-dim);padding:8px 14px;border-radius:var(--rp);transition:all .16s}
+.links button:hover{background:var(--surface-2);color:var(--text)}
+.links button.on{background:var(--acc-wash);color:var(--acc);font-weight:600}
+.lane-sw{display:flex;gap:3px;background:var(--surface-2);padding:4px;border-radius:var(--rp);flex-shrink:0}
+.lane-sw button{font-size:.83rem;padding:7px 15px;border-radius:var(--rp);color:var(--text-dim);transition:all .22s var(--spring)}
+.lane-sw button.on{background:var(--acc);color:#fff}
+.icon-btn{width:40px;height:40px;border-radius:var(--rp);background:var(--surface-2);display:grid;
+  place-items:center;font-size:1rem;flex-shrink:0;transition:all .2s var(--spring)}
+.icon-btn:hover{background:var(--surface-3);transform:rotate(-12deg) scale(1.08)}
+
+.view{display:none}.view.on{display:block}
+.sec{padding:28px 0 6px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--rp);padding:9px 18px;margin:20px 0 4px;
+  font-size:.85rem;color:var(--text-dim)}
+.banner b{color:var(--text);font-weight:600}
+
+/* live drop */
+.live{display:grid;grid-template-columns:330px 1fr;gap:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;box-shadow:0 16px 40px var(--shadow);margin-top:20px}
+@media(max-width:820px){.live{grid-template-columns:1fr}}
+.live .art{position:relative;background:var(--surface-2)}
+.live .art img{width:100%;height:100%;object-fit:cover;aspect-ratio:1}
+.live .tagline{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:7px;
+  background:rgba(12,8,26,.72);backdrop-filter:blur(6px);color:#fff;font-family:var(--display);
+  font-weight:600;font-size:.72rem;padding:5px 12px;border-radius:var(--rp)}
+.live .tagline i{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:blip 1.5s ease-in-out infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.35}}
+.live .body{padding:26px 28px;display:flex;flex-direction:column;gap:16px;justify-content:center}
+.live h1{font-size:clamp(1.6rem,3.2vw,2.3rem)}
+.live .by{font-size:.88rem;color:var(--text-dim)}
+.live .by b{color:var(--acc-2);font-weight:600}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:600px){.grid4{grid-template-columns:repeat(2,1fr)}}
+.grid4 .k{font-size:.72rem;color:var(--text-faint)}
+.grid4 .v{font-family:var(--display);font-weight:700;font-size:1.22rem;font-variant-numeric:tabular-nums}
+.prog{height:10px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.prog span{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc-2));border-radius:99px;transition:width .5s}
+.plabel{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-faint);margin-top:6px}
+.phases{display:flex;gap:8px;flex-wrap:wrap}
+.ph{font-family:var(--display);font-weight:600;font-size:.75rem;padding:5px 13px;border-radius:var(--rp);
+  background:var(--surface-2);color:var(--text-faint)}
+.ph.done{background:rgba(53,201,155,.15);color:var(--up)}
+.ph.now{background:var(--acc);color:#fff}
+
+/* drop cards */
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.dc{background:var(--surface);border:1px solid var(--border);border-radius:var(--rm);overflow:hidden;
+  text-align:left;width:100%;cursor:pointer;transition:transform .25s var(--spring),box-shadow .25s,border-color .2s}
+.dc:hover{transform:translateY(-7px);box-shadow:0 18px 34px var(--shadow);border-color:var(--acc)}
+.dc .art{aspect-ratio:1.35;overflow:hidden;background:var(--surface-2);position:relative}
+.dc .art img{width:100%;height:100%;object-fit:cover}
+.dc .st{position:absolute;top:9px;left:9px;font-family:var(--display);font-weight:600;font-size:.66rem;
+  padding:3px 10px;border-radius:var(--rp);color:#fff;background:rgba(12,8,26,.7);backdrop-filter:blur(5px)}
+.dc .st.live{background:#22A67F}
+.dc .st.ended{background:rgba(12,8,26,.55)}
+.dc .lane{position:absolute;top:9px;right:9px;font-family:var(--display);font-weight:600;font-size:.62rem;
+  padding:3px 9px;border-radius:var(--rp);background:rgba(255,255,255,.9);color:#241B38}
+.dc .info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px}
+.dc .nm{font-family:var(--display);font-weight:600;font-size:.98rem}
+.dc .sub{font-size:.76rem;color:var(--text-faint)}
+.dc .row{display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;font-size:.82rem}
+.dc .row b{font-family:var(--display);font-weight:600}
+.dc .miniprog{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:7px}
+.dc .miniprog span{display:block;height:100%;background:var(--acc);border-radius:99px}
+
+/* mint modal */
+.sheet{position:fixed;inset:0;z-index:95;background:rgba(20,12,40,.6);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:22px}
+.sheet.on{display:flex}
+.sheet-in{background:var(--surface);border-radius:var(--rl);max-width:520px;width:100%;max-height:90vh;
+  overflow:auto;padding:28px;box-shadow:0 26px 70px rgba(0,0,0,.4);animation:sIn .32s var(--spring);position:relative}
+@keyframes sIn{from{transform:translateY(20px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.mstage{height:230px;display:grid;place-items:center;position:relative;margin:8px 0 4px}
+#confetti{position:absolute;inset:0;pointer-events:none;z-index:5}
+.crate{width:150px;cursor:pointer;transition:transform .3s var(--spring)}
+.crate:hover{transform:scale(1.05) rotate(-3deg)}
+.crate.wob{animation:wob .5s ease-in-out 2}
+@keyframes wob{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-7deg) scale(1.04)}75%{transform:rotate(7deg) scale(1.04)}}
+.crate.gone{transform:scale(.2);opacity:0}
+.cards{display:flex;gap:12px;justify-content:center;align-items:center;position:absolute;inset:0;pointer-events:none}
+.c3{width:96px;height:132px;perspective:700px;opacity:0;transform:translateY(26px) scale(.8);
+  transition:opacity .35s,transform .5s var(--spring)}
+.c3.in{opacity:1;transform:none}
+.c3 .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .62s var(--spring)}
+.c3.flip .inner{transform:rotateY(180deg)}
+.c3 .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--rm);overflow:hidden;
+  box-shadow:0 8px 20px var(--shadow)}
+.c3 .back{background:linear-gradient(150deg,var(--acc),var(--acc-deep));display:grid;place-items:center}
+.c3 .back::after{content:"?";font-family:var(--display);font-weight:700;font-size:2.3rem;color:rgba(255,255,255,.55)}
+.c3 .front{transform:rotateY(180deg);background:var(--surface-2);border:2.5px solid var(--tc);
+  display:flex;flex-direction:column}
+.c3 .front img{width:100%;flex:1;object-fit:cover}
+.c3 .front .lab{font-family:var(--display);font-weight:600;font-size:.62rem;color:var(--tc);
+  text-align:center;padding:4px 2px;text-transform:uppercase;letter-spacing:.05em}
+.qty{display:flex;align-items:center;gap:12px;justify-content:center;margin:6px 0}
+.qty button{width:38px;height:38px;border-radius:var(--rp);background:var(--surface-2);font-size:1.15rem}
+.qty button:hover{background:var(--surface-3)}
+.qty .n{font-family:var(--display);font-weight:700;font-size:1.5rem;min-width:44px;text-align:center}
+.total{display:flex;justify-content:space-between;padding:13px 16px;background:var(--surface-2);
+  border-radius:var(--rs);font-size:.9rem;margin:10px 0}
+.total b{font-family:var(--display);font-weight:700;font-size:1.05rem}
+
+/* studio wizard */
+.steps{display:flex;gap:0;margin:26px 0 22px;align-items:center}
+.step{display:flex;align-items:center;gap:9px;flex:1}
+.step:last-child{flex:0}
+.step .dot{width:30px;height:30px;border-radius:var(--rp);background:var(--surface-2);color:var(--text-faint);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:.82rem;flex-shrink:0;transition:all .3s}
+.step.on .dot{background:var(--acc);color:#fff}
+.step.done .dot{background:var(--up);color:#fff}
+.step .lab{font-family:var(--display);font-weight:600;font-size:.83rem;color:var(--text-faint);white-space:nowrap}
+.step.on .lab{color:var(--text)}
+.step .line{flex:1;height:2px;background:var(--surface-2);margin:0 10px}
+.step.done .line{background:var(--up)}
+@media(max-width:760px){.step .lab{display:none}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:28px}
+.pane{display:none}.pane.on{display:block}
+.field{margin-bottom:18px}
+.field label{display:block;font-family:var(--display);font-weight:600;font-size:.85rem;margin-bottom:6px}
+.field .hint{font-size:.78rem;color:var(--text-faint);margin-top:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);padding:11px 14px;font-family:var(--body);font-size:.92rem;color:var(--text);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc);box-shadow:0 0 0 4px var(--acc-wash)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.row2{grid-template-columns:1fr}}
+.drop{border:2px dashed var(--border);border-radius:var(--rm);padding:26px;text-align:center;cursor:pointer;transition:all .2s}
+.drop:hover{border-color:var(--acc);background:var(--acc-wash)}
+.drop .em{font-size:2rem}
+.drop .t{font-family:var(--display);font-weight:600;margin-top:6px}
+.drop .s{font-size:.8rem;color:var(--text-faint)}
+.drop.filled{border-style:solid;border-color:var(--up);background:rgba(53,201,155,.07)}
+.laneopt{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.laneopt{grid-template-columns:1fr}}
+.laneopt button{background:var(--bg);border:2px solid var(--border);border-radius:var(--rm);padding:20px;
+  text-align:left;transition:all .2s var(--spring)}
+.laneopt button:hover{transform:translateY(-3px)}
+.laneopt button.on{border-color:var(--acc);background:var(--acc-wash)}
+.laneopt .em{font-size:1.6rem}
+.laneopt h3{margin:7px 0 5px}
+.laneopt p{font-size:.83rem;color:var(--text-dim);font-weight:400;font-family:var(--body)}
+.rev{display:grid;grid-template-columns:130px 1fr;gap:9px 16px;font-size:.88rem}
+.rev dt{color:var(--text-faint);font-family:var(--display);font-weight:500}
+.rev dd{margin:0;font-weight:500}
+.wiznav{display:flex;gap:10px;justify-content:space-between;margin-top:24px;flex-wrap:wrap}
+.ok{background:rgba(53,201,155,.12);border-radius:var(--rs);padding:16px 18px;font-size:.88rem;margin-top:16px}
+.ok b{font-weight:600}
+.timer{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums}
+.notes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.notes{grid-template-columns:1fr}}
+.note{background:var(--surface);border:1px solid var(--border);border-radius:var(--rm);padding:20px;display:flex;flex-direction:column;gap:8px}
+.note .em{font-size:1.55rem;line-height:1}
+.note p{font-size:.86rem;color:var(--text-dim)}
+.note b{color:var(--text);font-weight:600}
+footer{border-top:1px solid var(--border);margin-top:30px;padding:26px 0 54px;color:var(--text-faint);font-size:.85rem}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+</style>
+
+<div class="nav"><div class="wrap nav-in">
+  <div class="logo" id="home">
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="4" y="12" width="32" height="24" rx="8" style="fill:var(--acc)"></rect>
+      <rect x="4" y="12" width="32" height="8" rx="4" style="fill:var(--acc-2)"></rect>
+      <circle cx="15" cy="27" r="2.6" fill="#fff"></circle><circle cx="25" cy="27" r="2.6" fill="#fff"></circle>
+      <path d="M17 32 q3 2.4 6 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"></path>
+    </svg>Trove</div>
+  <nav class="links">
+    <button id="tDrops" class="on">Drops</button>
+    <button id="tCreate">Create</button>
+    <button id="tMarket">Marketplace &#8599;</button>
+  </nav>
+  <div class="lane-sw"><button id="lPlay" class="on">Play</button><button id="lPro">Pro</button></div>
+  <button class="icon-btn" id="theme" aria-label="Toggle colour theme">&#127769;</button>
+  <button class="btn sm">Connect</button>
+</div></div>
+
+<div class="wrap">
+
+<!-- ================= DROPS ================= -->
+<div class="view on" id="vDrops">
+  <div class="banner">
+    <span>&#128296; The <b>launchpad</b> half &mdash; browse drops, mint, or launch your own. Artwork is real on-chain art; <b>drop schedules are synthetic</b> (these launches haven't happened).</span>
+  </div>
+
+  <div class="live" id="liveDrop"></div>
+
+  <div class="sec">
+    <div class="sec-hd"><h2>Coming up &#9203;</h2><span class="dim" style="font-size:.85rem" id="soonCount"></span></div>
+    <div class="dgrid" id="soon"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd"><h2>Recently graduated &#127881;</h2></div>
+    <div class="dgrid" id="ended"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd"><h2>How a launch works here</h2></div>
+    <div class="notes">
+      <div class="note"><span class="em">&#128230;</span><h3>Minting is crate opening</h3>
+        <p>You don't buy a numbered JPEG, you <b>open a crate</b>. Same transaction, far better moment. Hit Mint on the live drop to see it.</p></div>
+      <div class="note"><span class="em">&#127942;</span><h3>Graduation is public</h3>
+        <p>When a drop sells out, liquidity locks and it appears on the marketplace automatically. The progress bar is the <b>event everyone watches</b>.</p></div>
+      <div class="note"><span class="em">&#9889;</span><h3>Two lanes, one engine</h3>
+        <p><b>Play</b> is instant and permissionless. <b>Pro</b> adds vesting, milestone escrow and KYC. Flip the switch in the header &mdash; Create changes with it.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CREATE ================= -->
+<div class="view" id="vCreate">
+  <div class="sec" style="padding-top:26px">
+    <h1>Launch something.<br>It takes about a minute.</h1>
+    <p class="dim" style="margin-top:10px;max-width:56ch">No code, no wallet setup, no gas. Fill four screens and it's live. <span id="laneBlurb"></span></p>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+  <div class="panel">
+    <!-- 1 lane -->
+    <div class="pane on" id="p0">
+      <h2 style="margin-bottom:6px">Pick your lane</h2>
+      <p class="dim" style="margin-bottom:18px;font-size:.9rem">This decides what we ask you for, and what buyers see.</p>
+      <div class="laneopt">
+        <button id="optPlay" class="on"><span class="em">&#127918;</span><h3>Play</h3>
+          <p>Instant, permissionless, crate-based. Live in minutes. Best for memes, art drops and community mints.</p></button>
+        <button id="optPro"><span class="em">&#127974;</span><h3>Pro</h3>
+          <p>Vesting, milestone escrow, KYC-gated allocations, multisig treasury. Slower, but investors will actually wire into it.</p></button>
+      </div>
+    </div>
+
+    <!-- 2 basics -->
+    <div class="pane" id="p1">
+      <h2 style="margin-bottom:18px">The basics</h2>
+      <div class="row2">
+        <div class="field"><label for="fName">Project name</label>
+          <input id="fName" value="Vault Wardens" placeholder="Vault Wardens"></div>
+        <div class="field"><label for="fSym">Symbol</label>
+          <input id="fSym" value="WARD" placeholder="WARD" maxlength="10"></div>
+      </div>
+      <div class="field"><label for="fDesc">One line about it</label>
+        <input id="fDesc" value="5,000 wardens guarding the vault." placeholder="What is it?"></div>
+      <div class="field"><label>Artwork</label>
+        <div class="drop" id="dz"><span class="em">&#128193;</span>
+          <div class="t" id="dzT">Drop your folder here</div>
+          <div class="s" id="dzS">PNG, JPG or GIF &middot; up to 10,000 files &middot; metadata generated for you</div></div>
+        <div class="hint">Already deployed elsewhere? <b>Import an existing collection</b> instead.</div>
+      </div>
+    </div>
+
+    <!-- 3 pricing -->
+    <div class="pane" id="p2">
+      <h2 style="margin-bottom:18px">Supply and pricing</h2>
+      <div class="row2">
+        <div class="field"><label for="fSupply">Supply</label><input id="fSupply" type="number" value="5000"></div>
+        <div class="field"><label for="fPrice">Mint price (SOL)</label><input id="fPrice" type="number" step="0.01" value="1.85"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="fRoyalty">Creator royalty</label>
+          <select id="fRoyalty"><option>0%</option><option selected>5%</option><option>7.5%</option><option>10%</option></select></div>
+        <div class="field"><label for="fPhase">Phases</label>
+          <select id="fPhase"><option selected>Allowlist then public</option><option>Public only</option><option>Allowlist only</option><option>Dutch auction</option></select></div>
+      </div>
+      <div id="proExtra" style="display:none">
+        <div class="row2">
+          <div class="field"><label for="fVest">Team vesting</label>
+            <select id="fVest"><option>6 month cliff, 24 month linear</option><option selected>12 month cliff, 36 month linear</option><option>No team allocation</option></select></div>
+          <div class="field"><label for="fEscrow">Raise escrow</label>
+            <select id="fEscrow"><option selected>Milestone release (3 tranches)</option><option>Immediate release</option></select></div>
+        </div>
+        <div class="field"><label for="fKyc">Buyer KYC</label>
+          <select id="fKyc"><option selected>Required, geo-blocked</option><option>Required</option><option>Not required</option></select></div>
+      </div>
+      <div class="field"><label>Safety rails</label>
+        <div class="hint" style="margin-top:0">Applied automatically and enforced on-chain: <b>mint authority revoked</b>, <b>LP locked</b>, <b>metadata frozen</b> at sellout. You can't turn these off &mdash; that's the point.</div></div>
+    </div>
+
+    <!-- 4 review -->
+    <div class="pane" id="p3">
+      <h2 style="margin-bottom:18px">Review and launch</h2>
+      <dl class="rev" id="review"></dl>
+      <div class="ok"><b>Estimated cost to you: 0 SOL.</b> Deployment gas is sponsored and recouped from mint fees, so launching is free even with an empty wallet.</div>
+      <div class="ok" style="background:var(--acc-wash);margin-top:10px" id="laneNote"></div>
+    </div>
+
+    <div class="wiznav">
+      <button class="btn ghost" id="prev">&#8592; Back</button>
+      <button class="btn" id="next">Continue &#8594;</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd"><h2>Why this is the hard part &#127919;</h2></div>
+    <div class="notes">
+      <div class="note"><span class="em">&#9201;&#65039;</span><h3>Four screens, not forty</h3>
+        <p>Most launchpads ask for a wallet, a treasury, a Discord and an audit before you can type a name. <b>Everything here has a sane default.</b></p></div>
+      <div class="note"><span class="em">&#128274;</span><h3>Rails you can't disable</h3>
+        <p>Mint authority revoked, LP locked, metadata frozen &mdash; enforced by the program, not by policy. <b>Buyers verify it on-chain</b>, they don't trust a badge.</p></div>
+      <div class="note"><span class="em">&#128176;</span><h3>Free to launch</h3>
+        <p>Gas is sponsored and recouped from mint fees. An empty wallet is not a blocker, which is the single biggest drop-off in creator onboarding.</p></div>
+    </div>
+  </div>
+</div>
+
+<footer><p>Trove Launchpad &middot; direction 06 &middot; the launch half &mdash; drops, minting and the creator Studio</p></footer>
+</div>
+
+<!-- mint modal -->
+<div class="sheet" id="sheet"><div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="mName">
+  <h2 id="mName"></h2>
+  <p class="dim" id="mBy" style="font-size:.87rem"></p>
+  <div class="mstage">
+    <svg class="crate" id="crate" viewBox="0 0 200 180" role="img" aria-label="A crate. Click to open.">
+      <ellipse cx="100" cy="166" rx="56" ry="8" style="fill:var(--shadow)"></ellipse>
+      <rect x="34" y="58" width="132" height="98" rx="26" style="fill:var(--acc)"></rect>
+      <rect x="26" y="38" width="148" height="40" rx="18" style="fill:var(--acc-2)"></rect>
+      <rect x="92" y="38" width="16" height="40" fill="rgba(255,255,255,.3)"></rect>
+      <circle cx="76" cy="108" r="9" fill="#fff" id="eL"></circle>
+      <circle cx="124" cy="108" r="9" fill="#fff" id="eR"></circle>
+      <circle cx="78" cy="110" r="4.4" fill="#2A1E45"></circle><circle cx="126" cy="110" r="4.4" fill="#2A1E45"></circle>
+      <path d="M86 130 q14 12 28 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"></path>
+    </svg>
+    <div class="cards" id="cards"></div>
+    <canvas id="confetti"></canvas>
+  </div>
+  <div class="qty"><button id="qDn" aria-label="Fewer">&minus;</button><span class="n" id="qN">1</span><button id="qUp" aria-label="More">+</button></div>
+  <div class="total"><span>Total</span><b id="mTotal"></b></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn big" id="mMint" style="flex:1">Open crate</button>
+    <button class="btn ghost" id="mClose">Close</button>
+  </div>
+</div></div>
+
+<script>
+var D=__BLOB__;
+(function(){
+  var TIERS=[['Common','--r1'],['Uncommon','--r2'],['Rare','--r3'],['Epic','--r4'],
+             ['Legendary','--r5'],['Mythic','--r6'],['Godly','--r7']];
+  var W=[5800,2200,1150,550,210,75,15],TOT=10000;
+  function roll(){var x=Math.random()*TOT,a=0;for(var i=0;i<7;i++){a+=W[i];if(x<a)return i;}return 0;}
+  function rollMin(m){var t=0,i;for(i=m;i<7;i++)t+=W[i];var x=Math.random()*t,a=0;
+    for(i=m;i<7;i++){a+=W[i];if(x<a)return i;}return m;}
+  function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lane='play';
+
+  /* ---------- live drop + countdown ---------- */
+  var live=D.drops.filter(function(d){return d.state==='live';})[0];
+  var liveEl=document.getElementById('liveDrop');
+  var deadline=Date.now()+4*3600*1000+11*60*1000+38*1000;
+  function renderLive(){
+    var pct=Math.round(live.minted/live.supply*100);
+    liveEl.innerHTML='<div class="art"><img src="'+live.img+'" alt="">'+
+      '<span class="tagline"><i></i> Minting now</span></div>'+
+      '<div class="body"><div><h1>'+esc(live.name)+'</h1>'+
+      '<p class="by">by <b>'+esc(live.by)+'</b> &middot; verified creator &middot; 4 prior launches, 0 rugs</p></div>'+
+      '<div class="phases"><span class="ph done">Allowlist &#10003;</span>'+
+      '<span class="ph now">Public &middot; live</span><span class="ph">Graduation</span></div>'+
+      '<div class="grid4">'+
+      '<div><div class="k">Price</div><div class="v">'+live.price.toFixed(2)+' &#9678;</div></div>'+
+      '<div><div class="k">Supply</div><div class="v">'+live.supply.toLocaleString()+'</div></div>'+
+      '<div><div class="k">Minted</div><div class="v">'+live.minted.toLocaleString()+'</div></div>'+
+      '<div><div class="k">'+esc(live.when)+'</div><div class="v timer" id="clock">--:--:--</div></div></div>'+
+      '<div><div class="prog"><span style="width:'+pct+'%"></span></div>'+
+      '<div class="plabel"><span>'+pct+'% minted</span><span>'+(live.supply-live.minted).toLocaleString()+' left</span></div></div>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn big" id="goMint">Open a crate &middot; '+live.price.toFixed(2)+' &#9678;</button>'+
+      '<button class="btn ghost">Add to watchlist</button></div></div>';
+    document.getElementById('goMint').addEventListener('click',function(){openMint(live);});
+  }
+  function tick(){
+    var el=document.getElementById('clock');if(!el)return;
+    var ms=Math.max(0,deadline-Date.now()),s=Math.floor(ms/1000);
+    var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;
+    el.textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+  }
+  renderLive();tick();if(!reduce)setInterval(tick,1000);
+
+  /* ---------- drop cards ---------- */
+  function dcard(d){
+    var pct=Math.round(d.minted/d.supply*100);
+    var b=document.createElement('button');b.className='dc';
+    b.innerHTML='<span class="art"><img src="'+d.img+'" alt="" loading="lazy">'+
+      '<span class="st '+d.state+'">'+(d.state==='live'?'Live':(d.state==='ended'?'Ended':'Upcoming'))+'</span>'+
+      '<span class="lane">'+(d.lane==='pro'?'Pro':'Play')+'</span></span>'+
+      '<span class="info"><span class="nm">'+esc(d.name)+'</span>'+
+      '<span class="sub">by '+esc(d.by)+' &middot; '+d.supply.toLocaleString()+' items</span>'+
+      '<span class="row"><span class="dim">'+esc(d.when)+'</span><b>'+d.price.toFixed(2)+' &#9678;</b></span>'+
+      (d.state!=='soon'?'<span class="miniprog"><span style="width:'+pct+'%"></span></span>':'')+'</span>';
+    b.addEventListener('click',function(){
+      if(d.state==='soon'){alert('“'+d.name+'” opens '+d.when+'. In the real build this sets a reminder.');}
+      else openMint(d);
+    });
+    return b;
+  }
+  var soonEl=document.getElementById('soon'),endEl=document.getElementById('ended');
+  var soonList=D.drops.filter(function(d){return d.state==='soon';});
+  soonList.forEach(function(d){soonEl.appendChild(dcard(d));});
+  D.drops.filter(function(d){return d.state==='ended';}).forEach(function(d){endEl.appendChild(dcard(d));});
+  document.getElementById('soonCount').textContent=soonList.length+' scheduled';
+
+  /* ---------- mint modal ---------- */
+  var sheet=document.getElementById('sheet'),crate=document.getElementById('crate'),
+      cardsEl=document.getElementById('cards'),qN=document.getElementById('qN'),
+      mTotal=document.getElementById('mTotal'),mMint=document.getElementById('mMint'),
+      cv=document.getElementById('confetti'),cx=cv.getContext('2d');
+  var qty=1,curDrop=null,busy=false;
+  function total(){mTotal.textContent=(qty*(curDrop?curDrop.price:0)).toFixed(2)+' ◎';}
+  function openMint(d){
+    curDrop=d;qty=1;qN.textContent='1';total();busy=false;
+    document.getElementById('mName').textContent=d.name;
+    document.getElementById('mBy').textContent='by '+d.by+' · '+d.price.toFixed(2)+' SOL per crate';
+    crate.classList.remove('gone');cardsEl.innerHTML='';
+    mMint.disabled=false;mMint.textContent='Open crate';
+    sheet.classList.add('on');mMint.focus();
+  }
+  document.getElementById('qUp').addEventListener('click',function(){if(qty<10){qty++;qN.textContent=qty;total();}});
+  document.getElementById('qDn').addEventListener('click',function(){if(qty>1){qty--;qN.textContent=qty;total();}});
+  document.getElementById('mClose').addEventListener('click',function(){sheet.classList.remove('on');});
+  sheet.addEventListener('click',function(e){if(e.target===sheet)sheet.classList.remove('on');});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')sheet.classList.remove('on');});
+
+  if(!reduce) setInterval(function(){
+    var a=document.getElementById('eL'),b=document.getElementById('eR');
+    if(!a)return;a.setAttribute('r','1.5');b.setAttribute('r','1.5');
+    setTimeout(function(){a.setAttribute('r','9');b.setAttribute('r','9');},130);
+  },3800);
+
+  function pop(cols){
+    var st=cv.parentElement,w=st.clientWidth,h=st.clientHeight;
+    cv.width=w;cv.height=h;var P=[],i;
+    for(i=0;i<70;i++){var a=Math.random()*Math.PI*2,sp=3+Math.random()*8;
+      P.push({x:w/2,y:h/2,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-3,c:cols[i%cols.length],
+        s:3+Math.random()*5,r:Math.random()*6.3,vr:(Math.random()-.5)*.4,l:1});}
+    (function f(){cx.clearRect(0,0,w,h);var alive=false;
+      for(i=0;i<P.length;i++){var p=P[i];if(p.l<=0)continue;alive=true;
+        p.x+=p.vx;p.y+=p.vy;p.vy+=.28;p.vx*=.99;p.r+=p.vr;p.l-=.014;
+        cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.globalAlpha=Math.max(0,p.l);
+        cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*1.5);cx.restore();}
+      cx.globalAlpha=1;if(alive)requestAnimationFrame(f);else cx.clearRect(0,0,w,h);})();
+  }
+
+  mMint.addEventListener('click',function(){
+    if(busy)return;
+    if(crate.classList.contains('gone')){
+      crate.classList.remove('gone');cardsEl.innerHTML='';mMint.textContent='Open crate';return;
+    }
+    busy=true;mMint.disabled=true;mMint.textContent='Opening…';
+    var n=Math.min(qty,3),picks=[],i;
+    for(i=0;i<n;i++)picks.push(roll());
+    if(Math.max.apply(null,picks)<2)picks[Math.floor(Math.random()*n)]=rollMin(2);
+    cardsEl.innerHTML='';
+    picks.forEach(function(t,i){
+      var d=document.createElement('div');d.className='c3';
+      d.style.setProperty('--tc','var('+TIERS[t][1]+')');
+      d.innerHTML='<div class="inner"><div class="face back"></div>'+
+        '<div class="face front"><img src="'+D.reveal[(i*3+t)%D.reveal.length]+'" alt="">'+
+        '<span class="lab">'+TIERS[t][0]+'</span></div></div>';
+      cardsEl.appendChild(d);
+    });
+    var cards=cardsEl.querySelectorAll('.c3'),cols=picks.map(function(t){return css(TIERS[t][1]);});
+    function reveal(){
+      crate.classList.add('gone');pop(cols.concat([css('--acc'),css('--acc-2')]));
+      cards.forEach(function(c,i){
+        setTimeout(function(){c.classList.add('in');},i*110);
+        setTimeout(function(){c.classList.add('flip');},420+i*170);
+      });
+      setTimeout(function(){busy=false;mMint.disabled=false;mMint.textContent='Open another';},1400);
+    }
+    if(reduce){reveal();return;}
+    crate.classList.add('wob');
+    setTimeout(function(){crate.classList.remove('wob');reveal();},1000);
+  });
+  crate.addEventListener('click',function(){if(!busy)mMint.click();});
+
+  /* ---------- studio wizard ---------- */
+  var LABELS=['Lane','Basics','Pricing','Launch'],step=0;
+  var stepsEl=document.getElementById('steps');
+  function drawSteps(){
+    stepsEl.innerHTML='';
+    LABELS.forEach(function(l,i){
+      var d=document.createElement('div');
+      d.className='step'+(i===step?' on':'')+(i<step?' done':'');
+      d.innerHTML='<span class="dot">'+(i<step?'✓':(i+1))+'</span><span class="lab">'+l+'</span>'+
+        (i<LABELS.length-1?'<span class="line"></span>':'');
+      stepsEl.appendChild(d);
+    });
+    for(var i=0;i<LABELS.length;i++){
+      var p=document.getElementById('p'+i);
+      if(p)p.classList.toggle('on',i===step);
+    }
+    document.getElementById('prev').style.visibility=step?'visible':'hidden';
+    document.getElementById('next').textContent=step===LABELS.length-1?'Deploy →':'Continue →';
+    if(step===3)review();
+  }
+  function review(){
+    var v=function(id){return document.getElementById(id).value;};
+    var h='<dt>Name</dt><dd>'+esc(v('fName'))+' ('+esc(v('fSym'))+')</dd>'+
+      '<dt>Lane</dt><dd>'+(lane==='pro'?'Pro — vesting, escrow, KYC':'Play — instant, permissionless')+'</dd>'+
+      '<dt>Supply</dt><dd>'+Number(v('fSupply')).toLocaleString()+'</dd>'+
+      '<dt>Mint price</dt><dd>'+Number(v('fPrice')).toFixed(2)+' SOL</dd>'+
+      '<dt>Royalty</dt><dd>'+esc(v('fRoyalty'))+'</dd>'+
+      '<dt>Phases</dt><dd>'+esc(v('fPhase'))+'</dd>';
+    if(lane==='pro'){
+      h+='<dt>Vesting</dt><dd>'+esc(v('fVest'))+'</dd>'+
+         '<dt>Escrow</dt><dd>'+esc(v('fEscrow'))+'</dd>'+
+         '<dt>Buyer KYC</dt><dd>'+esc(v('fKyc'))+'</dd>';
+    }
+    h+='<dt>Safety rails</dt><dd>Mint authority revoked · LP locked · metadata frozen</dd>';
+    document.getElementById('review').innerHTML=h;
+    document.getElementById('laneNote').innerHTML = lane==='pro'
+      ? '<b>Pro lane.</b> Raised funds sit in milestone escrow and release in tranches. Buyers are KYC-gated and geo-blocked. This is the lane investors will actually wire into.'
+      : '<b>Play lane.</b> Live the moment you hit deploy. No KYC, no escrow — buyers see the risk score inline and decide for themselves.';
+  }
+  document.getElementById('next').addEventListener('click',function(){
+    if(step<LABELS.length-1){step++;drawSteps();window.scrollTo({top:0,behavior:'smooth'});}
+    else{
+      var nm=document.getElementById('fName').value||'Your project';
+      alert('“'+nm+'” would deploy now.\n\nIn the real build this signs one transaction:\ncreate collection → configure phases → revoke mint authority → lock LP.\n\nThis page is static, so nothing is signed.');
+    }
+  });
+  document.getElementById('prev').addEventListener('click',function(){
+    if(step){step--;drawSteps();window.scrollTo({top:0,behavior:'smooth'});}
+  });
+
+  var dz=document.getElementById('dz');
+  dz.addEventListener('click',function(){
+    dz.classList.add('filled');
+    document.getElementById('dzT').textContent='5,000 files ready ✓';
+    document.getElementById('dzS').textContent='Traits detected · rarity computed · metadata generated';
+  });
+
+  /* ---------- lane ---------- */
+  function setLane(l){
+    lane=l;
+    document.documentElement.setAttribute('data-lane',l);
+    document.getElementById('lPlay').classList.toggle('on',l==='play');
+    document.getElementById('lPro').classList.toggle('on',l==='pro');
+    document.getElementById('optPlay').classList.toggle('on',l==='play');
+    document.getElementById('optPro').classList.toggle('on',l==='pro');
+    document.getElementById('proExtra').style.display=l==='pro'?'':'none';
+    document.getElementById('laneBlurb').textContent = l==='pro'
+      ? 'Pro adds vesting, milestone escrow and KYC — a few more questions, and a lot more trust.'
+      : 'Play is instant and permissionless.';
+    if(step===3)review();
+  }
+  document.getElementById('lPlay').addEventListener('click',function(){setLane('play');});
+  document.getElementById('lPro').addEventListener('click',function(){setLane('pro');});
+  document.getElementById('optPlay').addEventListener('click',function(){setLane('play');});
+  document.getElementById('optPro').addEventListener('click',function(){setLane('pro');});
+
+  /* ---------- tabs ---------- */
+  function tab(which){
+    document.getElementById('vDrops').classList.toggle('on',which==='drops');
+    document.getElementById('vCreate').classList.toggle('on',which==='create');
+    document.getElementById('tDrops').classList.toggle('on',which==='drops');
+    document.getElementById('tCreate').classList.toggle('on',which==='create');
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  document.getElementById('tDrops').addEventListener('click',function(){tab('drops');});
+  document.getElementById('tCreate').addEventListener('click',function(){tab('create');});
+  document.getElementById('home').addEventListener('click',function(){tab('drops');});
+  document.getElementById('tMarket').addEventListener('click',function(){
+    window.location.href='05-marketplace-full.html';
+  });
+
+  var tb=document.getElementById('theme');
+  tb.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    if(!c)c=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    tb.innerHTML=n==='dark'?'&#9728;&#65039;':'&#127769;';
+  });
+
+  setLane('play');drawSteps();
+})();
+</script>

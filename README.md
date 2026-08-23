@@ -96,9 +96,13 @@ URLs, replace `make_banner()` and everything downstream keeps working.
 
 ### About the artwork
 
-It's the collection creators' art, pulled from public on-chain metadata. Fine for an
-internal design sketch — standard practice for marketplace mockups — but it is **not
-ours**. Swap it for real launches before anything ships publicly.
+Pulled from public on-chain metadata — the same source OpenSea, Magic Eden, Tensor,
+Solscan and every wallet read. Collection art and avatars are published **so that
+marketplaces render them**; showing a piece next to its real live listing is exactly
+what that metadata is for, and it's distribution the projects want.
+
+Keep the link back to the mint on every item (the sheet already does this) so
+provenance stays intact — that's the norm marketplaces follow.
 
 `fetch_wide.py` paces itself at 1.6s between API calls and backs off on HTTP 429.
 Don't lower `PAUSE`; the API rate-limits hard and you'll just get empty results.
