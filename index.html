@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trove — Solana Launchpad prototypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F7F4FF;--surface:#fff;--surface-2:#F2EDFF;--border:#E5DEF7;
+  --text:#241B38;--text-dim:#6E6484;--text-faint:#9B93AD;--shadow:rgba(84,58,160,.13);
+  --acc:#7C5CFF;--acc-deep:#5B3FD1;--acc-wash:rgba(124,92,255,.11);--acc-2:#FF9F45;
+  --ok:#22A67F;--old:#9B93AD;
+  --display:'Fredoka',system-ui,sans-serif;--body:'Plus Jakarta Sans',system-ui,sans-serif;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#161226;--surface:#1F1A33;--surface-2:#2A2342;--border:#332A4F;
+  --text:#F0EBFF;--text-dim:#A79EC4;--text-faint:#7B7397;--shadow:rgba(0,0,0,.4);
+  --acc:#9B7DFF;--acc-deep:#6D4FE3;--acc-wash:rgba(155,125,255,.15);--ok:#3FD9A6;--old:#7B7397;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);
+  line-height:1.65;-webkit-font-smoothing:antialiased;padding:0 22px}
+.wrap{max-width:900px;margin:0 auto;padding:56px 0 70px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,5vw,3.2rem);margin:0 0 12px;line-height:1.05}
+p{margin:0}
+.sub{color:var(--text-dim);font-size:1.05rem;max-width:60ch}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+.brand svg{width:38px;height:38px}
+.brand span{font-family:var(--display);font-weight:700;font-size:1.35rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:36px 0 30px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+a.card{
+  display:flex;flex-direction:column;gap:7px;text-decoration:none;color:inherit;
+  background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:22px;
+  transition:transform .25s var(--spring),box-shadow .25s,border-color .2s}
+a.card:hover{transform:translateY(-6px);box-shadow:0 18px 34px var(--shadow);border-color:var(--acc)}
+a.card .tag{font-family:var(--display);font-weight:600;font-size:.68rem;text-transform:uppercase;
+  letter-spacing:.11em;padding:3px 10px;border-radius:99px;width:fit-content;
+  background:var(--acc-wash);color:var(--acc)}
+a.card.old .tag{background:var(--surface-2);color:var(--old)}
+a.card.now .tag{background:var(--ok);color:#fff}
+a.card h2{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:4px 0 0}
+a.card p{font-size:.88rem;color:var(--text-dim)}
+.note{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:22px;margin-top:8px}
+.note h3{font-family:var(--display);font-weight:600;font-size:1rem;margin:0 0 6px}
+.note p{font-size:.88rem;color:var(--text-dim)}
+.note code{font-family:ui-monospace,monospace;font-size:.85em;background:var(--surface-2);padding:2px 6px;border-radius:6px}
+.repo{display:inline-flex;align-items:center;gap:8px;margin-top:26px;background:var(--acc);color:#fff;
+  font-family:var(--display);font-weight:600;font-size:.92rem;padding:11px 22px;border-radius:99px;
+  text-decoration:none;box-shadow:0 4px 0 var(--acc-deep);transition:transform .12s,box-shadow .12s}
+.repo:active{transform:translateY(4px);box-shadow:0 0 0 var(--acc-deep)}
+footer{margin-top:34px;padding-top:22px;border-top:1px solid var(--border);color:var(--text-faint);font-size:.84rem}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="4" y="12" width="32" height="24" rx="8" style="fill:var(--acc)"></rect>
+      <rect x="4" y="12" width="32" height="8" rx="4" style="fill:var(--acc-2)"></rect>
+      <circle cx="15" cy="27" r="2.6" fill="#fff"></circle><circle cx="25" cy="27" r="2.6" fill="#fff"></circle>
+      <path d="M17 32 q3 2.4 6 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"></path>
+    </svg>
+    <span>Trove</span>
+  </div>
+
+  <h1>Solana launchpad<br>design prototypes</h1>
+  <p class="sub">Four static prototypes for an NFT + token launchpad built around a loot-crate mint mechanic. No build step — every page is a single self-contained HTML file.</p>
+
+  <div class="grid">
+    <a class="card now" href="directions/04-marketplace-live-data.html">
+      <span class="tag">Current</span>
+      <h2>Live-data marketplace</h2>
+      <p>48 real Solana listings — genuine prices, mints, sellers and artwork. Click any item to see what a real fill would need.</p>
+    </a>
+    <a class="card now" href="directions/03-marketplace-playful.html">
+      <span class="tag">Current</span>
+      <h2>Playful marketplace</h2>
+      <p>The design language, with the crate-opening animation. Click the crate. Press the buttons. Flip the theme.</p>
+    </a>
+    <a class="card" href="directions/01-crate-mechanic.html">
+      <span class="tag">Reference</span>
+      <h2>Crate mechanic</h2>
+      <p>Why the reveal works: anticipation, the tier tell, near-miss, motion spec, and a board of things worth stealing.</p>
+    </a>
+    <a class="card old" href="directions/02-marketplace-industrial.html">
+      <span class="tag">Rejected</span>
+      <h2>Industrial marketplace</h2>
+      <p>Earlier dark HUD direction. Dropped for being too hard-edged — kept only so nobody rebuilds it by accident.</p>
+    </a>
+  </div>
+
+  <div class="note">
+    <h3>Before you change anything</h3>
+    <p>Read the <a href="https://github.com/NotDev-omni/Launchpad#readme" style="color:var(--acc)">README</a> — it covers the three-state theming rule (light / dark / <em>system</em>), why buttons sit on a colored ledge, and what we verified about actually filling listings: reads are keyless, <code>buy_now</code> returns <code>401</code>, and about 1 in 8 listings are AMM/pool asks that need a different fill path.</p>
+  </div>
+
+  <a class="repo" href="https://github.com/NotDev-omni/Launchpad">View the repo →</a>
+
+  <footer>These pages are static. No wallet, no signing, no live prices — <code>data.json</code> is a snapshot.</footer>
+</div>
+</body>
+</html>
