@@ -89,10 +89,15 @@ output pages are fully self-contained and work offline.
 
 ### About the banners
 
-Magic Eden's public API doesn't expose collection banner assets, so `fetch_wide.py`
-**composites one per collection** from that collection's own item art — a blurred,
-darkened bed with a row of sharp tiles over it. If you get an API key with real banner
-URLs, replace `make_banner()` and everything downstream keeps working.
+Banners are **composited**, not real. `fetch_wide.py` builds one per collection from
+that collection's own item art — blurred darkened bed, row of sharp tiles over it.
+
+This isn't laziness: `fetch_banners.py` exists to fetch the real ones and it was tried.
+The `/v2/collections/{symbol}` metadata endpoint **rate-limited on all 7 collections**
+even at 2s pacing with backoff up to 60s per attempt. Zero real banners came back.
+Conclusion: **real banner assets need an API key.** When you have one, point
+`fetch_banners.py` at it — the composites are a safe fallback and it can be re-run
+any time.
 
 ### About the artwork
 
