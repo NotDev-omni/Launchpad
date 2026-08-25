@@ -159,6 +159,17 @@ button{font-family:var(--display);font-weight:600;cursor:pointer;border:0;backgr
 .rc .n{font-family:var(--display);font-weight:600;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc .p{font-family:var(--mono);font-size:.78rem;color:var(--text-dim);font-variant-numeric:tabular-nums}
 
+/* cross-link band to the launchpad half */
+.launchband{display:flex;align-items:center;gap:15px;margin-top:26px;padding:16px 20px;
+  border-radius:var(--rl);background:var(--acc-wash);border:1px solid var(--acc);
+  text-decoration:none;color:inherit;transition:transform .2s var(--spring),box-shadow .2s}
+.launchband:hover{transform:translateY(-3px);box-shadow:0 14px 28px var(--shadow)}
+.launchband .lb-em{font-size:1.6rem;line-height:1}
+.launchband .lb-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.launchband .lb-t b{font-family:var(--display);font-weight:600;font-size:.98rem}
+.launchband .lb-t span{font-size:.82rem;color:var(--text-dim)}
+.launchband .lb-go{font-family:var(--display);font-weight:600;font-size:.86rem;color:var(--acc);white-space:nowrap}
+
 /* ============ RANKING SIDEBAR ============ */
 .side{position:sticky;top:74px;background:var(--surface);border:1px solid var(--border);
   border-radius:var(--rl);overflow:hidden}
@@ -344,6 +355,13 @@ select{background:var(--surface);border:1px solid var(--border);color:var(--text
         <p class="sub">Cheapest ask in every collection right now</p>
         <div class="igrid" id="fresh"></div></div>
 
+      <a class="launchband" href="06-launchpad.html">
+        <span class="lb-em">&#128640;</span>
+        <span class="lb-t"><b>Drops &amp; Launchpad</b>
+          <span>15 launches scheduled &middot; 3 minting right now &middot; or launch your own in about a minute</span></span>
+        <span class="lb-go">Open &#8594;</span>
+      </a>
+
       <div class="sec"><h2>Build notes</h2>
         <p class="sub">What this layout borrows, and what it deliberately doesn't</p>
         <div class="notes">
@@ -469,10 +487,10 @@ var DATA={"fetched":"2026-08-23 09:13 UTC","collections":[{"sym":"mad_lads","nam
     ['Collections','M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z'],
     ['Tokens','M12 2a10 10 0 100 20 10 10 0 000-20 M12 6v12 M9 9h6 M9 15h6'],
     ['Swap','M7 16V4 M3 8l4-4 4 4 M17 8v12 M13 16l4 4 4-4'],
-    ['Drops','M12 2s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z'],
+    ['Drops','M12 2s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z','06-launchpad.html'],
     ['Activity','M22 12h-4l-3 9L9 3l-3 9H2'],
     ['Rewards','M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z'],
-    ['Studio','M12 19l7-7 3 3-7 7-3-3z M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z M2 2l7.5 7.5'],
+    ['Studio','M12 19l7-7 3 3-7 7-3-3z M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z M2 2l7.5 7.5','06-launchpad.html#create'],
     ['Profile','M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8']
   ];
   var railEl=document.getElementById('rail');
@@ -482,6 +500,7 @@ var DATA={"fetched":"2026-08-23 09:13 UTC","collections":[{"sym":"mad_lads","nam
     b.innerHTML='<svg viewBox="0 0 24 24"><path d="'+r[1]+'"/></svg><span class="tip">'+r[0]+'</span>';
     b.setAttribute('aria-label',r[0]);
     b.addEventListener('click',function(){
+      if(r[2]){window.location.href=r[2];return;}   // Drops and Studio live on the launchpad page
       Array.prototype.forEach.call(railEl.querySelectorAll('button'),function(x){x.classList.remove('on');});
       b.classList.add('on');goHome();
     });

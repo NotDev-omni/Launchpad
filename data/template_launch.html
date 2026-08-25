@@ -104,6 +104,25 @@ button{font-family:var(--display);font-weight:600;cursor:pointer;border:0;backgr
 .ph.done{background:rgba(53,201,155,.15);color:var(--up)}
 .ph.now{background:var(--acc);color:#fff}
 
+/* drops tabs + calendar */
+.dtabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.dtabs button{font-size:.92rem;font-weight:500;color:var(--text-dim);padding:11px 16px;
+  border-bottom:2px solid transparent;transition:all .15s}
+.dtabs button:hover{color:var(--text)}
+.dtabs button.on{color:var(--text);border-bottom-color:var(--acc);font-weight:600}
+.watch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--acc-wash);
+  border-radius:var(--rm);padding:13px 18px;margin-bottom:18px;font-size:.88rem}
+.watch b{font-weight:600}
+.watch .grow{flex:1}
+.daygroup{margin-bottom:6px}
+.daygroup .dh{display:flex;align-items:center;gap:10px;margin:20px 0 12px}
+.daygroup .dh .lab{font-family:var(--display);font-weight:600;font-size:.9rem;white-space:nowrap}
+.daygroup .dh .ln{flex:1;height:1px;background:var(--border)}
+.daygroup .dh .ct{font-size:.78rem;color:var(--text-faint)}
+.cdown{position:absolute;bottom:9px;left:9px;right:9px;background:rgba(10,6,22,.78);
+  backdrop-filter:blur(6px);color:#fff;border-radius:var(--rp);padding:4px 10px;
+  font-family:var(--display);font-weight:600;font-size:.72rem;text-align:center;
+  font-variant-numeric:tabular-nums}
 /* drop cards */
 .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
 .dc{background:var(--surface);border:1px solid var(--border);border-radius:var(--rm);overflow:hidden;
@@ -246,13 +265,17 @@ footer{border-top:1px solid var(--border);margin-top:30px;padding:26px 0 54px;co
   <div class="live" id="liveDrop"></div>
 
   <div class="sec">
-    <div class="sec-hd"><h2>Coming up &#9203;</h2><span class="dim" style="font-size:.85rem" id="soonCount"></span></div>
-    <div class="dgrid" id="soon"></div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-hd"><h2>Recently graduated &#127881;</h2></div>
-    <div class="dgrid" id="ended"></div>
+    <div class="dtabs">
+      <button id="tabSoon" class="on">Live &amp; Upcoming</button>
+      <button id="tabPast">Past</button>
+    </div>
+    <div class="watch">
+      <span>&#128276; <b>See your upcoming mints.</b> Connect a wallet and every drop you watch lands in one calendar with reminders.</span>
+      <span class="grow"></span>
+      <button class="btn sm">Connect</button>
+    </div>
+    <div class="chips" id="dcats" style="margin-bottom:6px"></div>
+    <div id="dlist"></div>
   </div>
 
   <div class="sec">
@@ -408,9 +431,15 @@ var D=__BLOB__;
   var lane='play';
 
   /* ---------- live drop + countdown ---------- */
+  // resolve every synthetic "hours from now" into a real timestamp at page load,
+  // so the countdowns are genuinely live rather than baked-in strings
+  var T0=Date.now();
+  D.drops.forEach(function(d){
+    if(typeof d.when==='number') d.at=T0+d.when*3600*1000;
+  });
   var live=D.drops.filter(function(d){return d.state==='live';})[0];
   var liveEl=document.getElementById('liveDrop');
-  var deadline=Date.now()+4*3600*1000+11*60*1000+38*1000;
+  var deadline=live.at;
   function renderLive(){
     var pct=Math.round(live.minted/live.supply*100);
     liveEl.innerHTML='<div class="art"><img src="'+live.img+'" alt="">'+
@@ -423,7 +452,7 @@ var D=__BLOB__;
       '<div><div class="k">Price</div><div class="v">'+live.price.toFixed(2)+' &#9678;</div></div>'+
       '<div><div class="k">Supply</div><div class="v">'+live.supply.toLocaleString()+'</div></div>'+
       '<div><div class="k">Minted</div><div class="v">'+live.minted.toLocaleString()+'</div></div>'+
-      '<div><div class="k">'+esc(live.when)+'</div><div class="v timer" id="clock">--:--:--</div></div></div>'+
+      '<div><div class="k">Closes in</div><div class="v timer" id="clock">--:--:--</div></div></div>'+
       '<div><div class="prog"><span style="width:'+pct+'%"></span></div>'+
       '<div class="plabel"><span>'+pct+'% minted</span><span>'+(live.supply-live.minted).toLocaleString()+' left</span></div></div>'+
       '<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn big" id="goMint">Open a crate &middot; '+live.price.toFixed(2)+' &#9678;</button>'+
@@ -438,28 +467,125 @@ var D=__BLOB__;
   }
   renderLive();tick();if(!reduce)setInterval(tick,1000);
 
-  /* ---------- drop cards ---------- */
+  /* ---------- drops calendar ---------- */
+  var DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function dayKey(ts){var d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();}
+  function dayLabel(ts){
+    var d=new Date(ts),n=new Date(),t=new Date(n.getTime()+86400000);
+    if(d.toDateString()===n.toDateString())return 'Today';
+    if(d.toDateString()===t.toDateString())return 'Tomorrow';
+    var days=Math.round((d-n)/86400000);
+    if(days<7)return DAY[d.getDay()];
+    return DAY[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate();
+  }
+  function clockStr(ms){
+    if(ms<=0)return 'Opening now';
+    var s=Math.floor(ms/1000),d=Math.floor(s/86400);
+    var h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),ss=s%60;
+    if(d>0)return d+'d '+h+'h';
+    return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+  }
+  function timeStr(ts){
+    var d=new Date(ts),h=d.getHours(),m=d.getMinutes();
+    var ap=h>=12?'PM':'AM',hh=h%12||12;
+    return hh+':'+(m<10?'0':'')+m+' '+ap;
+  }
+
   function dcard(d){
     var pct=Math.round(d.minted/d.supply*100);
     var b=document.createElement('button');b.className='dc';
+    var badge=d.state==='live'?'Minting now':(d.state==='ended'?'Ended':'Upcoming');
     b.innerHTML='<span class="art"><img src="'+d.img+'" alt="" loading="lazy">'+
-      '<span class="st '+d.state+'">'+(d.state==='live'?'Live':(d.state==='ended'?'Ended':'Upcoming'))+'</span>'+
-      '<span class="lane">'+(d.lane==='pro'?'Pro':'Play')+'</span></span>'+
+      '<span class="st '+d.state+'">'+badge+'</span>'+
+      '<span class="lane">'+(d.lane==='pro'?'Pro':'Play')+'</span>'+
+      (d.state==='soon'?'<span class="cdown" data-at="'+d.at+'">--</span>':'')+'</span>'+
       '<span class="info"><span class="nm">'+esc(d.name)+'</span>'+
-      '<span class="sub">by '+esc(d.by)+' &middot; '+d.supply.toLocaleString()+' items</span>'+
-      '<span class="row"><span class="dim">'+esc(d.when)+'</span><b>'+d.price.toFixed(2)+' &#9678;</b></span>'+
+      '<span class="sub">by '+esc(d.by)+' &middot; '+d.supply.toLocaleString()+' &middot; '+d.cat+'</span>'+
+      '<span class="row"><span class="dim">'+
+        (d.state==='soon'?timeStr(d.at):(d.state==='live'?'Live now':esc(d.when)))+
+      '</span><b>'+d.price.toFixed(2)+' &#9678;</b></span>'+
       (d.state!=='soon'?'<span class="miniprog"><span style="width:'+pct+'%"></span></span>':'')+'</span>';
     b.addEventListener('click',function(){
-      if(d.state==='soon'){alert('“'+d.name+'” opens '+d.when+'. In the real build this sets a reminder.');}
-      else openMint(d);
+      if(d.state==='soon'){
+        alert('“'+d.name+'” opens '+dayLabel(d.at)+' at '+timeStr(d.at)+'.\n\n'+
+              'In the real build this sets a reminder and adds it to your mint calendar.');
+      } else openMint(d);
     });
     return b;
   }
-  var soonEl=document.getElementById('soon'),endEl=document.getElementById('ended');
-  var soonList=D.drops.filter(function(d){return d.state==='soon';});
-  soonList.forEach(function(d){soonEl.appendChild(dcard(d));});
-  D.drops.filter(function(d){return d.state==='ended';}).forEach(function(d){endEl.appendChild(dcard(d));});
-  document.getElementById('soonCount').textContent=soonList.length+' scheduled';
+
+  var listEl=document.getElementById('dlist'),dTab='soon',dCat='All';
+  var CATS=['All'];(function(){var s={};D.drops.forEach(function(d){
+    if(d.cat&&!s[d.cat]){s[d.cat]=1;CATS.push(d.cat);}});})();
+  var catEl=document.getElementById('dcats');
+  CATS.forEach(function(k){
+    var b=document.createElement('button');b.className='chip'+(k==='All'?' on':'');
+    var n=k==='All'?D.drops.length:D.drops.filter(function(d){return d.cat===k;}).length;
+    b.innerHTML=k+' <span class="ct">'+n+'</span>';
+    b.addEventListener('click',function(){
+      dCat=k;Array.prototype.forEach.call(catEl.children,function(x){x.classList.remove('on');});
+      b.classList.add('on');renderDrops();
+    });
+    catEl.appendChild(b);
+  });
+
+  function renderDrops(){
+    var list=D.drops.filter(function(d){
+      if(dCat!=='All'&&d.cat!==dCat)return false;
+      return dTab==='past'?d.state==='ended':d.state!=='ended';
+    });
+    listEl.innerHTML='';
+    if(!list.length){
+      listEl.innerHTML='<div style="padding:44px;text-align:center;color:var(--text-faint)">Nothing scheduled in this category.</div>';
+      return;
+    }
+    if(dTab==='past'){
+      var g=document.createElement('div');g.className='dgrid';
+      list.forEach(function(d){g.appendChild(dcard(d));});
+      listEl.appendChild(g);return;
+    }
+    // Live first, then grouped by the day they open — this is the calendar
+    var liveOnes=list.filter(function(d){return d.state==='live';});
+    if(liveOnes.length){
+      var h=document.createElement('div');h.className='daygroup';
+      h.innerHTML='<div class="dh"><span class="lab">Minting now</span><span class="ln"></span>'+
+                  '<span class="ct">'+liveOnes.length+'</span></div>';
+      var lg=document.createElement('div');lg.className='dgrid';
+      liveOnes.forEach(function(d){lg.appendChild(dcard(d));});
+      h.appendChild(lg);listEl.appendChild(h);
+    }
+    var soonOnes=list.filter(function(d){return d.state==='soon';})
+                     .sort(function(a,b){return a.at-b.at;});
+    var groups={},order=[];
+    soonOnes.forEach(function(d){
+      var k=dayKey(d.at);
+      if(!groups[k]){groups[k]=[];order.push(k);}
+      groups[k].push(d);
+    });
+    order.forEach(function(k){
+      var wrap=document.createElement('div');wrap.className='daygroup';
+      wrap.innerHTML='<div class="dh"><span class="lab">'+dayLabel(groups[k][0].at)+'</span>'+
+        '<span class="ln"></span><span class="ct">'+groups[k].length+' drop'+(groups[k].length>1?'s':'')+'</span></div>';
+      var g=document.createElement('div');g.className='dgrid';
+      groups[k].forEach(function(d){g.appendChild(dcard(d));});
+      wrap.appendChild(g);listEl.appendChild(wrap);
+    });
+  }
+  document.getElementById('tabSoon').addEventListener('click',function(){
+    dTab='soon';this.classList.add('on');document.getElementById('tabPast').classList.remove('on');renderDrops();});
+  document.getElementById('tabPast').addEventListener('click',function(){
+    dTab='past';this.classList.add('on');document.getElementById('tabSoon').classList.remove('on');renderDrops();});
+
+  // one interval drives every visible countdown
+  function tickCards(){
+    var now=Date.now();
+    Array.prototype.forEach.call(document.querySelectorAll('.cdown'),function(e){
+      e.textContent=clockStr(+e.dataset.at-now);
+    });
+  }
+  renderDrops();tickCards();
+  if(!reduce)setInterval(tickCards,1000);
 
   /* ---------- mint modal ---------- */
   var sheet=document.getElementById('sheet'),crate=document.getElementById('crate'),
