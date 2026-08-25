@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Shell } from '@/components/Shell';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { VersionedTransaction, Transaction } from '@solana/web3.js';
 
@@ -93,7 +94,7 @@ export default function CollectionPage({ params }: { params: Promise<{ sym: stri
   }
 
   return (
-    <>
+    <Shell>
       <div style={{ margin: '18px 0' }}>
         <Link href="/" className="btn ghost" style={{ padding: '7px 14px', fontSize: '.8rem' }}>
           ← All collections
@@ -177,6 +178,6 @@ export default function CollectionPage({ params }: { params: Promise<{ sym: stri
           set. Reading listings needs no key at all.
         </div>
       </div>
-    </>
+    </Shell>
   );
 }

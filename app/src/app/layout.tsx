@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
-import { TopBar } from '@/components/TopBar';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -20,10 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <Providers>
-          <TopBar />
-          <main className="wrap">{children}</main>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

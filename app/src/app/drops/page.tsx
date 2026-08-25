@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { Shell } from '@/components/Shell';
 
 export const metadata = { title: 'Drops — Trove' };
 
 export default function Drops() {
   return (
-    <>
+    <Shell>
       <div className="sec">
         <h1 style={{ fontSize: '1.8rem' }}>Drops &amp; Launchpad</h1>
         <p className="sub">The launch half — mint flow and creator Studio</p>
@@ -31,6 +32,6 @@ export default function Drops() {
           ← Back to marketplace
         </Link>
       </div>
-    </>
+    </Shell>
   );
 }

@@ -85,6 +85,17 @@ export async function getListings(symbol: string, limit = 20): Promise<Listing[]
     .filter((l) => l.tokenMint && l.image && l.price > 0);
 }
 
+
+/** A few artwork URLs per collection, for cards and hero banners. */
+export async function getPreview(symbol: string, n = 5): Promise<string[]> {
+  try {
+    const ls = await getListings(symbol, n);
+    return ls.map((l) => l.image).filter(Boolean).slice(0, n);
+  } catch {
+    return [];
+  }
+}
+
 export type BuyResult =
   | { ok: true; tx: string }
   | { ok: false; reason: 'needs_api_key' | 'pool_listing' | 'error'; detail: string };
