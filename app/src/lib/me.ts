@@ -37,6 +37,7 @@ export type Stats = {
 /** Small in-process cache. ME rate-limits hard (HTTP 429) and dev hot-reloads hammer it. */
 const cache = new Map<string, { at: number; data: unknown }>();
 const TTL = 60_000;
+const STATS_TTL = 300_000;
 
 async function get<T>(path: string, ttl = TTL): Promise<T> {
   const hit = cache.get(path);
@@ -50,8 +51,32 @@ async function get<T>(path: string, ttl = TTL): Promise<T> {
   return data;
 }
 
+
+/**
+ * Run `fn` over `items` with bounded concurrency.
+ * Promise.all over a large list fires every request at once and Magic Eden
+ * answers with 429s. Four in flight is empirically fine.
+ */
+export async function mapLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const out = new Array<R>(items.length);
+  let next = 0;
+  async function worker() {
+    while (true) {
+      const i = next++;
+      if (i >= items.length) return;
+      out[i] = await fn(items[i]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return out;
+}
+
 export async function getStats(symbol: string): Promise<Stats> {
-  const raw = await get<Record<string, number>>(`/collections/${symbol}/stats`);
+  const raw = await get<Record<string, number>>(`/collections/${symbol}/stats`, STATS_TTL);
   return {
     symbol,
     floorPrice: (raw.floorPrice ?? 0) / 1e9,

@@ -79,6 +79,31 @@ Order of work to finish it:
 4. Port the drops calendar, reading real drop state from the program.
 5. Wire the crate reveal to the program's randomness rather than `Math.random()`.
 
+
+## Adding collections
+
+`src/lib/collections.ts` is a curated list, ranked at runtime by live 7d volume.
+
+It's curated because Magic Eden's **keyless tier has no working ranked endpoint**:
+`/v2/marketplace/popular_collections` returns `[]` for every timeRange,
+`leaderboard` and `marketplace/collections` return 400, and `/v2/collections` is
+unranked (arbitrary order, mostly obscure collections).
+
+To add candidates, put them in `scripts/probe-collections.mjs` and run:
+
+```bash
+node scripts/probe-collections.mjs
+```
+
+It checks which symbols resolve to a real floor, backs off on 429s, and prints a
+block ready to paste in. 28 of 38 candidates resolved on the last run.
+
+The list can grow freely — `/api/collections` fetches with **bounded concurrency**
+(`mapLimit`, 4 in flight). 27 collections x 2 requests completes in ~14s with zero
+rate limiting; `Promise.all` over the same list gets 429'd immediately.
+
+`EXCLUDE` at the top of the file hides a symbol without deleting it.
+
 ## Gotcha: never run `build` while `dev` is running
 
 `npm run dev` and `npm run build` share the same `.next/` directory. Running a build —
