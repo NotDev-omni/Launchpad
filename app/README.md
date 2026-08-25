@@ -79,6 +79,21 @@ Order of work to finish it:
 4. Port the drops calendar, reading real drop state from the program.
 5. Wire the crate reveal to the program's randomness rather than `Math.random()`.
 
+## Gotcha: never run `build` while `dev` is running
+
+`npm run dev` and `npm run build` share the same `.next/` directory. Running a build —
+or deleting `.next` — while the dev server is up pulls the ground out from under it.
+The symptom is nasty because the page still *loads*: it just serves a stylesheet with
+`globals.css` missing, so everything renders unstyled. The logo SVG has no size
+constraint and fills the entire screen.
+
+If the page looks wildly broken, that's almost always this. Fix:
+
+```bash
+# stop the dev server first, then
+rm -rf .next && npm run dev
+```
+
 ## Gotcha: React 18 vs 19 types
 
 `@solana/wallet-adapter-*` ships its own nested `@types/react` (v18). Against React 19
