@@ -6,7 +6,23 @@ Open any file in `directions/` directly in a browser.
 
 ---
 
-## Start here
+## Two things live in this repo
+
+**`app/`** — the real Next.js application. Real wallet connect, live Magic Eden data
+through server-side routes, and a working buy path. This is the thing that becomes the
+product. See [app/README.md](app/README.md).
+
+```bash
+cd app && npm install && npm run dev
+```
+
+**`directions/`** — static HTML prototypes. No build step, no dependencies; open any
+file in a browser. These are the design source of truth and are further along visually
+than the app is.
+
+---
+
+## Prototypes
 
 | File | What it is |
 |---|---|
