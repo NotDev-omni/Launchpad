@@ -3,9 +3,19 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+
+/**
+ * Client-only. The wallet button's modal reads WalletContext while rendering, which
+ * throws during prerender ("You have tried to read 'publicKey' on a WalletContext...").
+ * Loading it with ssr:false keeps it off the server pass entirely.
+ */
+const WalletMultiButton = dynamic(
+  () => import('@solana/wallet-adapter-react-ui').then((m) => m.WalletMultiButton),
+  { ssr: false, loading: () => <span className="btn" style={{ opacity: 0.5 }}>Connect</span> },
+);
 
 export function TopBar() {
   const path = usePathname();

@@ -126,14 +126,26 @@ export default function CollectionPage({ params }: { params: Promise<{ sym: stri
 
       {items && (
         <div className="igrid">
-          {items.map((l) => {
+          {items.map((l, i) => {
             const b = band(l.rank);
             return (
               <div key={l.tokenMint} className="it" style={{ ['--tc' as string]: `var(${b.v})` }}>
                 <div className="art">
                   {/* plain img: NFT art lives on many hosts and Next/Image would need each allowlisted */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={l.image} alt={l.name} loading="lazy" />
+                  <img
+                    src={l.image}
+                    alt={l.name}
+                    /* first rows are above the fold — lazy there costs LCP for nothing */
+                    loading={i < 8 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    /* dead IPFS/Arweave pins are common in NFT metadata; show the mint instead of a blank box */
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      el.style.display = 'none';
+                      el.parentElement?.classList.add('noart');
+                    }}
+                  />
                   <span className="tier">{b.k}</span>
                   {l.isPool && <span className="pool">POOL</span>}
                 </div>

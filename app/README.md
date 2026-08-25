@@ -79,6 +79,19 @@ Order of work to finish it:
 4. Port the drops calendar, reading real drop state from the program.
 5. Wire the crate reveal to the program's randomness rather than `Math.random()`.
 
+## Gotcha: React 18 vs 19 types
+
+`@solana/wallet-adapter-*` ships its own nested `@types/react` (v18). Against React 19
+that produces:
+
+```
+error TS2786: 'ConnectionProvider' cannot be used as a JSX component.
+```
+
+Fixed by the `overrides` block in `package.json`, which forces a single `@types/react`
+across the whole tree. **Don't remove it** — and if you bump React or the wallet
+adapters, bump the override to match or this comes straight back.
+
 ## Caching
 
 `src/lib/me.ts` keeps a 60s in-process cache because Magic Eden rate-limits hard

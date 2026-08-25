@@ -5,3 +5,4 @@ install.log
 .env.local
 *.tsbuildinfo
 next-env.d.ts
+build*.log
