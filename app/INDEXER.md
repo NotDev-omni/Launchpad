@@ -129,3 +129,63 @@ export async function getAsset(mint: string) {
 
 Chain-first with ME as fallback lets you migrate per-field instead of all at once, and
 keeps the site up if a gateway or RPC has a bad day.
+
+---
+
+# Provider layering — research findings, Aug 2026
+
+The refined plan was Alchemy primary + Helius fallback for RPC, and SimpleHash +
+Tensor + Magic Eden for market data. Verified each before wiring:
+
+| Provider | Status | Detail |
+|---|---|---|
+| **Alchemy** | ✅ use as primary | 30M CU/mo free tier, **and its DAS API covers compressed NFTs** — which removes the cNFT blocker flagged earlier. Marked **Beta** by Alchemy. |
+| **Helius** | ✅ keep as fallback | Smaller free tier, but DAS is GA not Beta. Given Alchemy's DAS is Beta, Helius is the safer path for cNFT reads specifically, not just redundancy. |
+| **Tensor** | ⚠️ gated | Access is an **application form** for traders and market-makers, not self-serve signup. Cannot be integrated until approved. |
+| **SimpleHash** | ❌ **dead** | Acquired by **Phantom** (Feb 2025, not OpenSea). Standalone API **sunset 27 Mar 2025**. Not integrable at any price. |
+
+## SimpleHash needs replacing
+
+It was one of the three market-data legs and it no longer exists. Candidates:
+
+- **Birdeye** — self-serve, Solana-native, covers token and NFT market data. Most
+  direct substitute and the one to evaluate first.
+- **A DAS provider** (Helius / QuickNode / Triton) — covers *asset* data well, but DAS
+  does not give you cross-marketplace floors or volume, so it is not a like-for-like swap.
+- **OpenSea API** — has Solana support and now owns SimpleHash's lineage, but requires a
+  key and its own terms.
+
+Recommendation: **Birdeye as the third leg**, with Tensor added if and when the
+application is approved. Two working sources is real redundancy; one is not.
+
+## Compute units are not comparable
+
+"30M Alchemy CU vs 1M Helius credits" is not a 30x difference. They are different units
+with different per-method costs, and DAS calls are priced far above a plain
+`getAccountInfo` on both. Size the tiers against *your* actual method mix before
+treating Alchemy's free tier as effectively unlimited.
+
+## What was built
+
+- `src/lib/rpc.ts` — `withFailover()` tries Alchemy → Helius → public, marks a failing
+  provider unhealthy for a 60s cooldown, and skips non-DAS providers when
+  `needsDas: true`. Never logs the key-bearing URL, only the host.
+- `src/lib/sources/registry.ts` — market sources behind one interface with
+  first-success-wins failover. Tensor and SimpleHash slots exist but are disabled and
+  carry the reason, so nobody re-adds SimpleHash from the original plan.
+- `GET /api/health` — reports both layers and, critically, whether each is
+  **actually redundant**.
+
+## Current honest state
+
+With no keys set, `/api/health` reports:
+
+```json
+{ "rpc":    { "dasCapable": [], "redundant": false },
+  "market": { "usable": ["magiceden"], "redundant": false } }
+```
+
+So the no-single-point-of-failure goal is **not yet met** — the plumbing is in place but
+there is still exactly one RPC and one market source. It becomes true when
+`ALCHEMY_RPC_URL` and `HELIUS_RPC_URL` are set and a second market source lands. The
+health endpoint is the check; it will flip to `redundant: true` on its own.
