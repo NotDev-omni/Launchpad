@@ -94,6 +94,36 @@ If the page looks wildly broken, that's almost always this. Fix:
 rm -rf .next && npm run dev
 ```
 
+## Gotcha: only ever ONE copy of `@solana/wallet-adapter-react`
+
+Symptom — hundreds of these at runtime, even though `WalletProvider` clearly *is* an
+ancestor:
+
+```
+Error: You have tried to read "publicKey" on a WalletContext without providing one.
+  at BaseWalletMultiButton
+```
+
+Cause is the dual-package hazard. React Context identity is per *module instance*. If
+two copies of `wallet-adapter-react` end up in the tree, there are two distinct
+`WalletContext` objects: your provider fills one, the button reads the other and finds
+it empty.
+
+It happened here because `package.json` pinned `0.15.35` while
+`@solana/wallet-adapter-base-ui` depends on `^0.15.39`, so npm nested a second copy:
+
+```
+node_modules/@solana/wallet-adapter-react                                    0.15.35
+node_modules/@solana/wallet-adapter-base-ui/node_modules/@solana/…-react     0.15.39
+```
+
+Fixed by matching the dependency to `^0.15.39` **and** adding an `overrides` entry.
+Check after any adapter bump:
+
+```bash
+npm ls @solana/wallet-adapter-react     # must show exactly one version
+```
+
 ## Gotcha: React 18 vs 19 types
 
 `@solana/wallet-adapter-*` ships its own nested `@types/react` (v18). Against React 19
